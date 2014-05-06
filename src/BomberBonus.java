@@ -1,59 +1,79 @@
+
 import java.awt.*;
 import javax.swing.*;
 import java.io.*;
 
 /**
- * File:         BomberBonus
- * Copyright:    Copyright (c) 2001
+ * File: BomberBonus Copyright: Copyright (c) 2001
+ *
  * @author Sammy Leong
  * @version 1.0
  */
-
 /**
  * This class creates the bonuses in the game.
  */
 public class BomberBonus extends Thread {
-    /** map object */
+
+    /**
+     * map object
+     */
     private BomberMap map = null;
-    /** position */
+    /**
+     * position
+     */
     private int x = 0;
     private int y = 0;
-    /** frame count */
+    /**
+     * frame count
+     */
     private int frame = 0;
-    /** alive flag */
+    /**
+     * alive flag
+     */
     private boolean alive = true;
-    /** bonus type */
+    /**
+     * bonus type
+     */
     private int type = 0;
-    /** bomb sprite image handles */
+    /**
+     * bomb sprite image handles
+     */
     private Image[] images = null;
-    /** rendering hints */
+    /**
+     * rendering hints
+     */
     private static Object hints = null;
 
     private static int FIRE = 0;
     private static int BOMB = 1;
 
     static {
-        /** if java runtime is Java 2 */
+        /**
+         * if java runtime is Java 2
+         */
         if (Main.J2) {
-            /** create the rendering hints for better graphics output */
+            /**
+             * create the rendering hints for better graphics output
+             */
             RenderingHints h = null;
             h = new RenderingHints(null);
             h.put(RenderingHints.KEY_TEXT_ANTIALIASING,
-             RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             h.put(RenderingHints.KEY_FRACTIONALMETRICS,
-             RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+                    RenderingHints.VALUE_FRACTIONALMETRICS_ON);
             h.put(RenderingHints.KEY_ALPHA_INTERPOLATION,
-             RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                    RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
             h.put(RenderingHints.KEY_ANTIALIASING,
-             RenderingHints.VALUE_ANTIALIAS_ON);
+                    RenderingHints.VALUE_ANTIALIAS_ON);
             h.put(RenderingHints.KEY_COLOR_RENDERING,
-             RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            hints = (RenderingHints)h;
+                    RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+            hints = (RenderingHints) h;
         }
     }
 
     /**
      * Constructs a bonus.
+     *
      * @param map map object
      * @param x x-coordinate
      * @param y y-coordinage
@@ -75,15 +95,28 @@ public class BomberBonus extends Thread {
      */
     public synchronized void run() {
         while (alive) {
-            /** draw the bonus */
+            /**
+             * draw the bonus
+             */
             map.paintImmediately(x, y, BomberMain.size, BomberMain.size);
-            /** rotate frame */
+            /**
+             * rotate frame
+             */
             frame = (frame + 1) % 2;
-            /** sleep for 130 ms */
-            try { sleep(130); } catch (Exception e) {}
-            if (frame == 10) break;
+            /**
+             * sleep for 130 ms
+             */
+            try {
+                sleep(130);
+            } catch (Exception e) {
+            }
+            if (frame == 10) {
+                break;
+            }
         }
-        /** remove it from the grid */
+        /**
+         * remove it from the grid
+         */
         map.removeBonus(x, y);
     }
 
@@ -92,12 +125,23 @@ public class BomberBonus extends Thread {
      */
     public void giveToPlayer(int player) {
         BomberMain.sndEffectPlayer.playSound("Bonus");
-        /** if it's a fire bonus */
-        if (type == FIRE) /** then increase the fire length by 1 */
-           BomberGame.players[player - 1].fireLength += 1;
-        /** if it's a bomb bonus */
-        else if (type == BOMB) /** then increase the bomb count by 1 */
-             BomberGame.players[player - 1].totalBombs += 1;
+        /**
+         * if it's a fire bonus
+         */
+        if (type == FIRE) /**
+         * then increase the fire length by 1
+         */
+        {
+            BomberGame.players[player - 1].fireLength += 1;
+        } /**
+         * if it's a bomb bonus
+         */
+        else if (type == BOMB) /**
+         * then increase the bomb count by 1
+         */
+        {
+            BomberGame.players[player - 1].totalBombs += 1;
+        }
         kill();
     }
 
@@ -113,24 +157,32 @@ public class BomberBonus extends Thread {
      * Drawing method.
      */
     public void paint(Graphics g) {
-        /** if java runtime is Java 2 */
-        if (Main.J2) { paint2D(g); }
-        /** if java runtime isn't Java 2 */
+        /**
+         * if java runtime is Java 2
+         */
+        if (Main.J2) {
+            paint2D(g);
+        } /**
+         * if java runtime isn't Java 2
+         */
         else {
-             g.drawImage(images[frame], x, y,
-             BomberMain.size, BomberMain.size, null);
+            g.drawImage(images[frame], x, y,
+                    BomberMain.size, BomberMain.size, null);
         }
     }
 
     /**
      * Drawing method for Java 2's Graphics2D
+     *
      * @param graphics graphics handle
      */
     public void paint2D(Graphics graphics) {
-        Graphics2D g2 = (Graphics2D)graphics;
-        /** set the rendering hints */
-        g2.setRenderingHints((RenderingHints)hints);
+        Graphics2D g2 = (Graphics2D) graphics;
+        /**
+         * set the rendering hints
+         */
+        g2.setRenderingHints((RenderingHints) hints);
         g2.drawImage(images[frame], x, y,
-        BomberMain.size, BomberMain.size, null);
+                BomberMain.size, BomberMain.size, null);
     }
 }
