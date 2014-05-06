@@ -114,6 +114,12 @@ public class BomberPlayer extends Thread {
      */
     private boolean clear = false;
 
+    
+    /**
+     * variable to determine player team
+     */
+    private static int teamAssigner = 0;
+    
     /**
      * byte enumerations
      */
@@ -131,6 +137,11 @@ public class BomberPlayer extends Thread {
     private static final int RIGHT = 3;
     private static final int BOMB = 4;
     private static final int EXPLODING = 4;
+    
+    /** 
+     * Number of desired teams
+     */
+    private static final int NUMBER_OF_TEAMS = 2;
     /**
      * all player sprite images
      */
@@ -1293,13 +1304,20 @@ public class BomberPlayer extends Thread {
         p.setParameter(Profile.MAIN_HOST, host);
         p.setParameter(Profile.MAIN_PORT, port);
         ContainerController cc = runtime.createAgentContainer(p);
+        // arguments for the agent constructor
+        Object[] args = new Object[5];
+        args[0] = teamAssigner;
+        
         if (cc != null) {
             // Create the Book Buyer agent and start it
             try {
                 AgentController ac = cc.createNewAgent(name,
                         "BomberPlayerAgent",
-                        null);
+                        args);
                 ac.start();
+                teamAssigner++;
+                /* right value is the number of desired different teams */
+                teamAssigner %= NUMBER_OF_TEAMS;
                 return ac;
             } catch (Exception e) {
                 e.printStackTrace();

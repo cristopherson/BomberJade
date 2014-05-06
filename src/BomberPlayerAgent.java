@@ -15,11 +15,15 @@ import jade.lang.acl.ACLMessage;
  */
 public class BomberPlayerAgent extends Agent {
     private boolean logged = false;
+    private int team;
 
     protected void setup() {
+    	Object[] args = this.getArguments();
+    	team = (int) args[0];
         // Printout a welcome message
         System.out.println("Hello World. I’m a bomber agent!");
         System.out.println("My local-name is " + getAID().getLocalName());
+        System.out.println("I play for team " + team);
         /*        System.out.println("My GUID is " + getAID().getName());
          System.out.println("My addresses are:");*/
 
