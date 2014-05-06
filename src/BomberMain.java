@@ -4,6 +4,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import jade.core.Agent;
+import jade.core.behaviours.TickerBehaviour;
 import java.util.Iterator;
 
 /**
@@ -42,6 +43,13 @@ public class BomberMain extends Agent {
     public BomberMain() {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
+       
+        addBehaviour(new TickerBehaviour(this, 2000) {
+            protected void onTick() {
+            // perform operation Y
+                System.out.println("I am alive");
+            }
+        });
         
         mainFramework= new JFrame();
         /** add window event handler */
