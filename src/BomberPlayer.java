@@ -3,6 +3,8 @@ import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
+import jade.wrapper.StaleProxyException;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -119,6 +121,11 @@ public class BomberPlayer extends Thread {
      * variable to determine player team
      */
     private static int teamAssigner = 0;
+    
+    /**
+     * Controller for this player's agent
+     */
+    AgentController ac = null;
     
     /**
      * byte enumerations
@@ -1199,7 +1206,14 @@ public class BomberPlayer extends Thread {
             /**
              * if it's dead, then exit the loop
              */
-            if (isDead) {
+            if (isDead) {            	
+            	try {
+					System.out.println("Killing agent controller" + ac.getName());
+					ac.kill();
+				} catch (StaleProxyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                 break;
             }
             /**
@@ -1311,7 +1325,7 @@ public class BomberPlayer extends Thread {
         if (cc != null) {
             // Create the Book Buyer agent and start it
             try {
-                AgentController ac = cc.createNewAgent(name,
+                ac = cc.createNewAgent(name,
                         "BomberPlayerAgent",
                         args);
                 ac.start();
