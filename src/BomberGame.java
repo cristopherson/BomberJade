@@ -168,7 +168,7 @@ public class BomberGame extends JPanel
      * @param evt key event
      */
     public void keyPressed(KeyEvent evt) {
-        if (!gameOver) {
+        if (!gameOver) {            
             for (int i = 0; i < totalPlayers; i++) {
                 players[i].keyPressed(evt);
             }

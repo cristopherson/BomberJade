@@ -23,7 +23,7 @@ public class BomberPlayerAgent extends Agent {
         /*        System.out.println("My GUID is " + getAID().getName());
          System.out.println("My addresses are:");*/
 
-        addBehaviour(new TickerBehaviour(this, 4000) {
+        addBehaviour(new TickerBehaviour(this, 500) {
             protected void onTick() {
                 // perform operation Y
                 ACLMessage msg = receive();
@@ -37,6 +37,14 @@ public class BomberPlayerAgent extends Agent {
                     msg.setOntology("Weather-forecast-ontology");
                     msg.setContent("Hi All\nI am " + getAID().getLocalName());
                     send(msg);
+                } else {
+                    msg = new ACLMessage(ACLMessage.INFORM);
+                    msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
+                    msg.setLanguage("English");
+                    msg.setOntology("Weather-forecast-ontology");
+                    int move = (int)(Math.random() * 5);
+                    msg.setContent("Move:"+getAID().getLocalName()+":"+move);
+                    send(msg);                    
                 }
             }
         });

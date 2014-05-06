@@ -5,11 +5,14 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -62,22 +65,45 @@ public class BomberMain extends Agent {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
 
-        addBehaviour(new TickerBehaviour(this, 2000) {
+        addBehaviour(new TickerBehaviour(this, 100) {
             protected void onTick() {
                 // perform operation Y                
                 ACLMessage msg = receive();
                 if (msg != null) {
                     // Process the message
                     String content = msg.getContent();
-                    System.out.println(content);                    
-                    content = content.replaceAll("Hi All\nI am ", "");
-                    
-                    msg = new ACLMessage(ACLMessage.INFORM);
-                    msg.addReceiver(new AID(content, AID.ISLOCALNAME));
-                    msg.setLanguage("English");
-                    msg.setOntology("Weather-forecast-ontology");
-                    msg.setContent("Hi " + content + "\nI am "+ getAID().getLocalName() + "\nWelcome to the game");
-                    send(msg);
+                    System.out.println(content);
+                    if (content.startsWith("Move:")) {
+                        String moveArray[] = content.split(":");
+                        String agent = moveArray[1];
+                        int index = Integer.parseInt(agent.replaceAll("Bomber", ""));
+                        int move = Integer.parseInt(moveArray[2]);
+                        KeyEvent event
+                                = new KeyEvent(game, BomberKeyConfig.keys[index - 1][move],
+                                        System.currentTimeMillis(), 0, BomberKeyConfig.keys[index - 1][move],
+                                        KeyEvent.CHAR_UNDEFINED);
+
+                        System.out.println("Moving " + agent + " to " + move);
+
+                        if (game != null) {
+                            game.keyPressed(event);
+                            try {
+                                Thread.sleep(150);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            game.keyReleased(event);
+                        }
+                    } else {
+                        content = content.replaceAll("Hi All\nI am ", "");
+
+                        msg = new ACLMessage(ACLMessage.INFORM);
+                        msg.addReceiver(new AID(content, AID.ISLOCALNAME));
+                        msg.setLanguage("English");
+                        msg.setOntology("Weather-forecast-ontology");
+                        msg.setContent("Hi " + content + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
+                        send(msg);
+                    }
                 }
             }
         });
