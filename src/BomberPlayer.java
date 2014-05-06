@@ -1,4 +1,8 @@
 
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.wrapper.AgentController;
+import jade.wrapper.ContainerController;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -281,6 +285,7 @@ public class BomberPlayer extends Thread {
         /**
          * start looping
          */
+        createBomberAgent("192.168.0.13", "1099","Bomber" + playerNo);
         start();
     }
 
@@ -1273,5 +1278,33 @@ public class BomberPlayer extends Thread {
                         x, y - (BomberMain.size / 2), width, height, null);
             }
         }
+    }
+    
+
+    public AgentController createBomberAgent(
+            String host, // JADE Book Trading environment Main Container
+            String port, // JADE Book Trading environment Main Container port
+            String name // Book Buyer agent name
+    ) {
+        // Retrieve the singleton instance of the JADE Runtime
+        jade.core.Runtime runtime = jade.core.Runtime.instance();
+        // Create a container to host the Book Buyer agent
+        Profile p = new ProfileImpl();
+        p.setParameter(Profile.MAIN_HOST, host);
+        p.setParameter(Profile.MAIN_PORT, port);
+        ContainerController cc = runtime.createAgentContainer(p);
+        if (cc != null) {
+            // Create the Book Buyer agent and start it
+            try {
+                AgentController ac = cc.createNewAgent(name,
+                        "BomberPlayerAgent",
+                        null);
+                ac.start();
+                return ac;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 }

@@ -1,12 +1,17 @@
 
 import jade.core.AID;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.io.*;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 /**
  * File: BomberMain.java Copyright: Copyright (c) 2001
@@ -59,8 +64,21 @@ public class BomberMain extends Agent {
 
         addBehaviour(new TickerBehaviour(this, 2000) {
             protected void onTick() {
-                // perform operation Y
-                System.out.println("I am alive");
+                // perform operation Y                
+                ACLMessage msg = receive();
+                if (msg != null) {
+                    // Process the message
+                    String content = msg.getContent();
+                    System.out.println(content);                    
+                    content = content.replaceAll("Hi All\nI am ", "");
+                    
+                    msg = new ACLMessage(ACLMessage.INFORM);
+                    msg.addReceiver(new AID(content, AID.ISLOCALNAME));
+                    msg.setLanguage("English");
+                    msg.setOntology("Weather-forecast-ontology");
+                    msg.setContent("Hi " + content + "\nI am "+ getAID().getLocalName() + "\nWelcome to the game");
+                    send(msg);
+                }
             }
         });
 
@@ -217,13 +235,8 @@ public class BomberMain extends Agent {
 
     protected void setup() {
         // Printout a welcome message
-        System.out.println("Hello World. I’m an agent!");
-        System.out.println("My local-name is " + getAID().getLocalName());
-        System.out.println("My GUID is " + getAID().getName());
-        System.out.println("My addresses are:");
-        Iterator it = getAID().getAllAddresses();
-        while (it.hasNext()) {
-            System.out.println("- " + it.next());
-        }
+        System.out.println("Game has started!");
+        System.out.println("Host is " + getAID().getLocalName());
+        System.out.println("Waiting for players...");
     }
 }
