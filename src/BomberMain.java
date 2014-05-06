@@ -76,13 +76,13 @@ public class BomberMain extends Agent {
                 	String agent = msg.getSender().getLocalName();
                 	
                 	switch (performative) {
-                	case ACLMessage.INFORM:
+                	case ACLMessage.SUBSCRIBE:
                 		
-                        System.out.println(getAID().getLocalName() + " got informative message");
+                        System.out.println(getAID().getLocalName() + " got subscription request");
                         System.out.println(agent + " says " + content);
                         
                         /* send response message */
-                        msg = new ACLMessage(ACLMessage.INFORM);
+                        msg = new ACLMessage(ACLMessage.CONFIRM);
                         /* content is already set to the name of the agent who sent the original */
                         msg.addReceiver(new AID(agent, AID.ISLOCALNAME));
                         msg.setLanguage("English");
@@ -116,11 +116,10 @@ public class BomberMain extends Agent {
                                 }
                                 game.keyReleased(event);
                             }
-                		} 
-                	}
-                        
-                	
-                }
+                		}
+                		break;
+                	}                         	
+                } /* else I did not receive any message... but I may want to act on my own */
             }
         });
 

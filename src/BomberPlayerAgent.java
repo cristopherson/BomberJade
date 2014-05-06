@@ -44,7 +44,7 @@ public class BomberPlayerAgent extends Agent {
                     
                 /* no message received. Send a message if I have not said my name */
                 } else if(!logged){
-                    msg = new ACLMessage(ACLMessage.INFORM);
+                    msg = new ACLMessage(ACLMessage.SUBSCRIBE);
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
                     msg.setLanguage("English");
                     msg.setOntology("Weather-forecast-ontology");
