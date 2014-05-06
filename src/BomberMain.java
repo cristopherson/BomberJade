@@ -71,39 +71,55 @@ public class BomberMain extends Agent {
                 ACLMessage msg = receive();
                 if (msg != null) {
                     // Process the message
-                    String content = msg.getContent();
-                    System.out.println(content);
-                    if (content.startsWith("Move:")) {
-                        String moveArray[] = content.split(":");
-                        String agent = moveArray[1];
-                        int index = Integer.parseInt(agent.replaceAll("Bomber", ""));
-                        int move = Integer.parseInt(moveArray[2]);
-                        KeyEvent event
-                                = new KeyEvent(game, BomberKeyConfig.keys[index - 1][move],
-                                        System.currentTimeMillis(), 0, BomberKeyConfig.keys[index - 1][move],
-                                        KeyEvent.CHAR_UNDEFINED);
-
-                        System.out.println("Moving " + agent + " to " + move);
-
-                        if (game != null) {
-                            game.keyPressed(event);
-                            try {
-                                Thread.sleep(150);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            game.keyReleased(event);
-                        }
-                    } else {
-                        content = content.replaceAll("Hi All\nI am ", "");
-
+                	int performative = msg.getPerformative();
+                	String content = msg.getContent();
+                	String agent = msg.getSender().getLocalName();
+                	
+                	switch (performative) {
+                	case ACLMessage.INFORM:
+                		
+                        System.out.println(getAID().getLocalName() + " got informative message");
+                        System.out.println(agent + " says " + content);
+                        
+                        /* send response message */
                         msg = new ACLMessage(ACLMessage.INFORM);
-                        msg.addReceiver(new AID(content, AID.ISLOCALNAME));
+                        /* content is already set to the name of the agent who sent the original */
+                        msg.addReceiver(new AID(agent, AID.ISLOCALNAME));
                         msg.setLanguage("English");
+                        /* The ontology determines the elements that agents can use within the content of the message.
+                         * It defines a vocabulary and relationships between the elements in such a vocabulary. Said relationships
+                         * can be structural or semantic 
+                         */
                         msg.setOntology("Weather-forecast-ontology");
-                        msg.setContent("Hi " + content + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
+                        msg.setContent("Hi " + agent + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
                         send(msg);
-                    }
+                        break;
+                        
+                	case ACLMessage.REQUEST:                		
+                		if (content.startsWith("Move:")) {
+                            String moveArray[] = content.split(":");
+                            int index = Integer.parseInt(agent.replaceAll("Bomber", ""));
+                            int move = Integer.parseInt(moveArray[1]);
+                            KeyEvent event
+                                    = new KeyEvent(game, BomberKeyConfig.keys[index - 1][move],
+                                            System.currentTimeMillis(), 0, BomberKeyConfig.keys[index - 1][move],
+                                            KeyEvent.CHAR_UNDEFINED);
+
+                            System.out.println("Moving " + agent + " to " + move);
+
+                            if (game != null) {
+                                game.keyPressed(event);
+                                try {
+                                    Thread.sleep(150);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                game.keyReleased(event);
+                            }
+                		} 
+                	}
+                        
+                	
                 }
             }
         });
