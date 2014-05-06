@@ -1,6 +1,8 @@
 
+import jade.core.AID;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
+import jade.lang.acl.ACLMessage;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
@@ -128,6 +130,11 @@ public class BomberPlayer extends Thread {
     AgentController ac = null;
     
     /**
+     * Reference to the main agent
+     */
+    BomberMain mainAgent = null;
+    
+    /**
      * byte enumerations
      */
     private static final byte BUP = 0x01;
@@ -221,10 +228,11 @@ public class BomberPlayer extends Thread {
      * @param map map object
      * @param playerNo player's number
      */
-    public BomberPlayer(BomberGame game, BomberMap map, int playerNo) {
+    public BomberPlayer(BomberGame game, BomberMap map, int playerNo, BomberMain hostAgent) {
         this.game = game;
         this.map = map;
         this.playerNo = playerNo;
+        this.mainAgent = hostAgent;
 
         /**
          * create the bomb grid
@@ -671,6 +679,14 @@ public class BomberPlayer extends Thread {
                      * create bomb
                      */
                     map.createBomb(x + halfSize, y + halfSize, playerNo);
+                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);                    
+                    msg.setLanguage("English");                    
+                    msg.setOntology("Weather-forecast-ontology");
+                    msg.setContent("Bomb:" + (x + halfSize) + ":" + (y+halfSize));
+                    /* Iterate over the list of subscribed agents */
+                    for (int i = 0; i < mainAgent.subscribers.length; i++)
+                    	msg.addReceiver(new AID(mainAgent.subscribers[i], AID.ISLOCALNAME));                    
+                    mainAgent.send(msg);
                 }
             }
             /**

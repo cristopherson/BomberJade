@@ -144,7 +144,7 @@ public class BomberGame extends JPanel
          * create the players
          */
         for (int i = 0; i < totalPlayers; i++) {
-            players[i] = new BomberPlayer(this, map, i + 1);
+            players[i] = new BomberPlayer(this, map, i + 1, main);
         }
 
         /**

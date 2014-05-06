@@ -49,6 +49,17 @@ public class BomberMain extends Agent {
      * this is used to calculate the dimension of the game
      */
     public static final int shiftCount = 4;
+    
+    /**
+     * List of agents subscribed to this agent's notifications
+     */
+    public static String[] subscribers = new String[4];
+    
+    /**
+     * Index for subscribed agents
+     */
+    private static int index = 0;
+    
     /**
      * this is the size of each square in the game
      */
@@ -73,14 +84,18 @@ public class BomberMain extends Agent {
                     // Process the message
                 	int performative = msg.getPerformative();
                 	String content = msg.getContent();
-                	String agent = msg.getSender().getLocalName();
+                	String agent = msg.getSender().getLocalName();                	
                 	
                 	switch (performative) {
                 	case ACLMessage.SUBSCRIBE:
                 		
                         System.out.println(getAID().getLocalName() + " got subscription request");
                         System.out.println(agent + " says " + content);
-                        
+    
+                        if (index < subscribers.length) {
+                        	subscribers[index] = agent;
+                        	index++;
+                        }
                         /* send response message */
                         msg = new ACLMessage(ACLMessage.CONFIRM);
                         /* content is already set to the name of the agent who sent the original */
