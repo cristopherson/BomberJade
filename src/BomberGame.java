@@ -111,7 +111,7 @@ implements ActionListener {
         /** set it to opaque */
         setOpaque(false);
         /** add it to the top layer */
-        main.getLayeredPane().add(this, 0);
+        main.getMainFramework().getLayeredPane().add(this, 0);
     }
 
     /**
@@ -128,7 +128,7 @@ implements ActionListener {
         {
             timer.stop();
             timer = null;
-            main.dispose();
+            main.getMainFramework().dispose();
             new BomberMain();
         }
     }

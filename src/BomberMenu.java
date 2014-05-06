@@ -165,7 +165,7 @@ public class BomberMenu extends JPanel {
                  main.newGame(selection + 2);
                  break;
             case CONTROL_SETUP:
-                 new BomberConfigDialog(main);
+                 new BomberConfigDialog(main.getMainFramework());
                  break;
             case EXIT:
                 /** create the dialog content */

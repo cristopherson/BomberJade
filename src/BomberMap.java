@@ -274,7 +274,7 @@ public class BomberMap extends JPanel {
         setBounds(0, 0, 17 << main.shiftCount, 17 << main.shiftCount);
         setOpaque(false);
         /** add the map to the bottom layer */
-        main.getLayeredPane().add(this, 1000);
+        main.getMainFramework().getLayeredPane().add(this, 1000);
     }
 
     /**
