@@ -102,7 +102,7 @@ public class BomberPlayer extends Thread {
      * Previous player position
      */
     public int prev_x = -1;
-	public int prev_y = -1;
+    public int prev_y = -1;
     /**
      * player's number
      */
@@ -1328,11 +1328,13 @@ public class BomberPlayer extends Thread {
 
             if (new_x != prev_x || new_y != prev_y) {
                 try {
-                    String message = "player:" + ac.getName() + ":" + this.team + ":" + new_x + ":" + new_y;
-                    sendMessage(message);
+                    if (ac != null) {
+                        String message = "player:" + ac.getName() + ":" + this.team + ":" + new_x + ":" + new_y;
+                        sendMessage(message);
+                    }
                 } catch (StaleProxyException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
                 prev_x = new_x;
                 prev_y = new_y;
@@ -1343,7 +1345,6 @@ public class BomberPlayer extends Thread {
     /**
      * Send a notification message to agents
      */
-
     public void sendMessage(String message) {
         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
         msg.setLanguage("English");

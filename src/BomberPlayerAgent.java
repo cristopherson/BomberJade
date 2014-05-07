@@ -66,7 +66,7 @@ public class BomberPlayerAgent extends Agent {
                                 if (receivedPlayer == playerId) {
                                     System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
                                     x = receivedX;
-                                } else if (receivedTeam == team) {
+                                } else if (receivedTeam == player.team) {
                                     System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");
                                     y = receivedY;
                                 } else {
