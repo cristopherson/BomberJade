@@ -677,15 +677,6 @@ public class BomberPlayer extends Thread {
                      * create bomb
                      */
                     map.createBomb(x + halfSize, y + halfSize, playerNo);
-                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-                    msg.setLanguage("English");
-                    msg.setOntology("Weather-forecast-ontology");
-                    msg.setContent("Bomb:" + (x + halfSize) + ":" + (y + halfSize));
-                    /* Iterate over the list of subscribed agents */
-                    for (int i = 0; i < mainAgent.subscribers.length; i++) {
-                        msg.addReceiver(new AID(mainAgent.subscribers[i], AID.ISLOCALNAME));
-                    }
-                    mainAgent.send(msg);
                 }
             }
             /**
