@@ -46,6 +46,8 @@ public class BomberPlayerAgent extends Agent {
         addBehaviour(new TickerBehaviour(this, 500) {
             protected void onTick() {
                 // perform operation Y
+                new_pos = new GridCoordinates();
+                prev_pos = new GridCoordinates();
                 /* get the first message on my message queue.
                  */
                 ACLMessage msg = receive();
@@ -79,6 +81,9 @@ public class BomberPlayerAgent extends Agent {
                                      */
                                     if (new_pos.x == prev_pos.x && new_pos.y == prev_pos.y && moving) {
                                         moveRequest(4);
+                                    } else {
+                                        prev_pos.x = new_pos.x;
+                                        prev_pos.y = new_pos.y;
                                     }
                                 /* Is an enemy position what I've received? */
                                 } else if (receivedTeam != player.team) {
@@ -100,8 +105,8 @@ public class BomberPlayerAgent extends Agent {
                                         if (!found) {
                                                 current = new GridCoordinates();
                                                 current.id = receivedPlayer;
-										current.x = receivedX;
-										current.y = receivedY;
+                                        current.x = receivedX;
+                                        current.y = receivedY;
                                                 enemies.add(current);
                                         }
                                 /* Is it an ally then? */
@@ -197,9 +202,39 @@ public class BomberPlayerAgent extends Agent {
                     msg.setContent("Move:" + move);
                     send(msg);
                     */
+
+                    if (new_pos != null) {
+                        int move = -1;
+
+                        do {
+                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x, new_pos.y + 1);
+                            if (move != -1) {
+                                break;
+                            }
+                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x, new_pos.y - 1);
+                            if (move != -1) {
+                                break;
+                            }
+                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x - 1, new_pos.y);
+                            if (move != -1) {
+                                break;
+                            }
+                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x + 1, new_pos.y);
+                            if (move == -1) {
+                                System.out.println("Can not move at at all");
+                            }
+                        } while (false);
+
+                        if (move != -1) {
+                            msg.setContent("Move:" + move);
+                            send(msg);
+                        }
+                    }
                 }
+
             }
-        });
+        }
+        );
 
     }
 

@@ -108,6 +108,8 @@ public class BomberMain extends Agent {
                             msg.setOntology("Weather-forecast-ontology");
                             msg.setContent("Hi " + agent + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
                             send(msg);
+                            
+                            game.players[index -1].sendPosition();
                             break;
 
                         case ACLMessage.REQUEST:

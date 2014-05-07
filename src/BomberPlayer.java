@@ -155,12 +155,12 @@ public class BomberPlayer extends Thread {
     /**
      * number enumerations
      */
-    private static final int UP = 0;
-    private static final int DOWN = 1;
-    private static final int LEFT = 2;
-    private static final int RIGHT = 3;
-    private static final int BOMB = 4;
-    private static final int EXPLODING = 4;
+    public static final int UP = 0;
+    public static final int DOWN = 1;
+    public static final int LEFT = 2;
+    public static final int RIGHT = 3;
+    public static final int BOMB = 4;
+    public static final int EXPLODING = 4;
 
     /**
      * Number of desired teams
@@ -174,6 +174,8 @@ public class BomberPlayer extends Thread {
      * rendering hints
      */
     private static Object hints = null;
+    
+    private boolean notifyStaticPosition = false;
 
     static {
         /**
@@ -1291,7 +1293,7 @@ public class BomberPlayer extends Thread {
      * @param graphics graphics handle
      */
     public void paint2D(Graphics graphics) {
-        Graphics2D g2 = (Graphics2D) graphics;
+        Graphics2D g2 = (Graphics2D) graphics;        
         int new_x;
         int new_y;
         /**
@@ -1326,7 +1328,7 @@ public class BomberPlayer extends Thread {
             new_x = (x / 15);
             new_y = (y / 15);
 
-            if (new_x != prev_x || new_y != prev_y) {
+            if (new_x != prev_x || new_y != prev_y || notifyStaticPosition) {
                 try {
                     if (ac != null) {
                         String id = ac.getName();
@@ -1342,7 +1344,11 @@ public class BomberPlayer extends Thread {
                 }
                 prev_x = new_x;
                 prev_y = new_y;
+                notifyStaticPosition = false;
+            } else {
+                notifyStaticPosition = true;
             }
+
         }
     }
 
@@ -1399,5 +1405,14 @@ public class BomberPlayer extends Thread {
 
     public void createBomberPlayerAgent() {
         createBomberAgent("192.168.0.13", "1099", "Bomber" + playerNo);
+    }
+
+    public void sendPosition() {
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        msg.addReceiver(new AID("Bomber" + playerNo, AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setOntology("Weather-forecast-ontology");
+        msg.setContent("Player:" + playerNo + ":" + teamAssigner + ":" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount));
+        mainAgent.send(msg);
     }
 }
