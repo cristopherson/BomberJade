@@ -144,6 +144,7 @@ public class BomberPlayer extends Thread {
      */
     BomberMain mainAgent = null;
 
+    GridCoordinates prev_pos = new GridCoordinates();
     /**
      * byte enumerations
      */

@@ -22,7 +22,6 @@ public class BomberPlayerAgent extends Agent {
     private boolean logged = false;
     private boolean moving = false;
     private BomberPlayer player;
-    private GridCoordinates new_pos, prev_pos;
     private LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
     private LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
 
@@ -45,8 +44,8 @@ public class BomberPlayerAgent extends Agent {
         addBehaviour(new TickerBehaviour(this, 500) {
             protected void onTick() {
                 // perform operation Y
-                new_pos = new GridCoordinates();
-                prev_pos = new GridCoordinates();
+                GridCoordinates new_pos = new GridCoordinates();
+
                 /* get the first message on my message queue.
                  */
                 ACLMessage msg = receive();
@@ -74,18 +73,18 @@ public class BomberPlayerAgent extends Agent {
 
                                 /* Is mine the reported position? */
                                 if (receivedPlayer == player.playerNo) {
-                                    System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
+                                    System.out.println("I am at position (" + receivedX + "," + receivedY + ")");
                                     new_pos.x = receivedX;
                                     new_pos.y = receivedY;
 
                                     /* I'm attempting to go somewhere but I can't... there's a wall.
                                      * blow it up!
                                      */
-                                    if (new_pos.x == prev_pos.x && new_pos.y == prev_pos.y && moving) {
+                                    if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y && moving) {
                                         moveRequest(4);
                                     } else {
-                                        prev_pos.x = new_pos.x;
-                                        prev_pos.y = new_pos.y;
+                                        player.prev_pos.x = new_pos.x;
+                                        player.prev_pos.y = new_pos.y;
                                     }
                                 /* Is an enemy position what I've received? */
                                 } else if (receivedTeam != player.team) {
