@@ -392,4 +392,10 @@ public class BomberGame extends JPanel
                     images[5].getHeight(this) / (BomberMain.size != 16 ? 1 : 2));
         }
     }
+
+    public void createBomberPlayerAgents() {
+        for (int i = 0; i < players.length; i++) {
+            players[i].createBomberPlayerAgent();
+        }
+    }
 }

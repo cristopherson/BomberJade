@@ -295,5 +295,6 @@ public class BomberMain extends Agent {
         System.out.println("Game has started!");
         System.out.println("Host is " + getAID().getLocalName());
         System.out.println("Waiting for players...");
+        game.createBomberPlayerAgents();
     }
 }

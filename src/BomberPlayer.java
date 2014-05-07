@@ -310,7 +310,6 @@ public class BomberPlayer extends Thread {
         /**
          * start looping
          */
-        createBomberAgent("192.168.0.13", "1099", "Bomber" + playerNo);
         start();
     }
 
@@ -1353,5 +1352,9 @@ public class BomberPlayer extends Thread {
             }
         }
         return null;
+    }
+
+    public void createBomberPlayerAgent() {
+        createBomberAgent("192.168.0.13", "1099", "Bomber" + playerNo);
     }
 }

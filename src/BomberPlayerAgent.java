@@ -41,7 +41,9 @@ public class BomberPlayerAgent extends Agent {
                     System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     int performative = msg.getPerformative();
                     System.out.println("message is of performative " + performative);
-                    logged = true;
+                    if (performative == ACLMessage.CONFIRM) {
+                        logged = true;
+                    }
 
                     /* no message received. Send a message if I have not said my name */
                 } else if (!logged) {
