@@ -135,7 +135,6 @@ public class BomberMain extends Agent {
                                     }
                                     game.keyReleased(event);
                                 }
-                                game.players[index - 1].attemptingToMove = false;
                             }
                             break;
                     }

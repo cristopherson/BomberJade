@@ -153,7 +153,7 @@ public class BomberPlayer extends Thread {
     /**
      * Flag to determine whether I am attempting to move
      */
-    public boolean attemptingToMove = false;
+    public boolean samePlace = false;
 
     /**
      * Databases for enemies and bombs...
@@ -622,6 +622,17 @@ public class BomberPlayer extends Thread {
              */
             keyPressed = false;
             BomberMain.sndEffectPlayer.playSound("Die");
+
+            String message = "Dead:" + this.playerNo + ":" + this.team;
+            sendMessage(message);
+
+            try {
+                System.out.println("Killing agent controller" + ac.getName());
+                ac.kill();
+            } catch (StaleProxyException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             /**
              * wake up and die
              */
@@ -1243,13 +1254,6 @@ public class BomberPlayer extends Thread {
              * if it's dead, then exit the loop
              */
             if (isDead) {
-                try {
-                    System.out.println("Killing agent controller" + ac.getName());
-                    ac.kill();
-                } catch (StaleProxyException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
                 break;
             }
             /**
@@ -1310,7 +1314,7 @@ public class BomberPlayer extends Thread {
      * @param graphics graphics handle
      */
     public void paint2D(Graphics graphics) {
-        Graphics2D g2 = (Graphics2D) graphics;        
+        Graphics2D g2 = (Graphics2D) graphics;
         int new_x;
         int new_y;
         /**
@@ -1352,7 +1356,7 @@ public class BomberPlayer extends Thread {
                         String[] names = id.split("@");
                         int playerId = Integer.parseInt(names[0].replaceAll("Bomber", ""));
 
-                        String message = "player:" + playerId + ":" + this.team + ":" + new_x + ":" + new_y;
+                        String message = "Player:" + playerId + ":" + this.team + ":" + new_x + ":" + new_y;
                         sendMessage(message);
                     }
                 } catch (StaleProxyException e) {

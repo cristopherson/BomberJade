@@ -79,14 +79,19 @@ public class BomberPlayerAgent extends Agent {
                                     /* I'm attempting to go somewhere but I can't... there's a wall.
                                      * blow it up!
                                      */
-                                    /* TODO: may need extra locks here to prevent placing bombs if moving away from one */
-                                    if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y && !player.attemptingToMove) {
-                                        if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
-                                            moveRequest(BomberPlayer.BOMB);
-                                    } else {
-                                        player.prev_pos.x = new_pos.x;
-                                        player.prev_pos.y = new_pos.y;
+                                    if (player.samePlace) {
+                                        //if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
+                                        moveRequest(BomberPlayer.BOMB);
                                     }
+                                    /* TODO: may need extra locks here to prevent placing bombs if moving away from one */
+                                    if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y) {
+                                        player.samePlace = true;
+                                    } else {
+                                        player.samePlace = false;
+                                    }
+
+                                    player.prev_pos.x = new_pos.x;
+                                    player.prev_pos.y = new_pos.y;
                                 /* Is an enemy position what I've received? */
                                 } else if (receivedTeam != player.team) {
                                         System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
@@ -325,14 +330,12 @@ public class BomberPlayerAgent extends Agent {
      */
     private void moveRequest(int move) {
         /* ensure only valid requests are sent */
-        if (move >= 0 && move <= 4) {
+        if (move >= BomberPlayer.UP && move <= BomberPlayer.BOMB) {
             ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
             msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
             msg.setLanguage("English");
             msg.setOntology("Weather-forecast-ontology");
             msg.setContent("Move:" + move);
-            /* Consider that I am attempting to move */
-            player.attemptingToMove = true;
             send(msg);
         }
     }
