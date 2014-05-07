@@ -1329,7 +1329,11 @@ public class BomberPlayer extends Thread {
             if (new_x != prev_x || new_y != prev_y) {
                 try {
                     if (ac != null) {
-                        String message = "player:" + ac.getName() + ":" + this.team + ":" + new_x + ":" + new_y;
+                        String id = ac.getName();
+                        String[] names = id.split("@");
+                        int playerId = Integer.parseInt(names[0].replaceAll("Bomber", ""));
+
+                        String message = "player:" + playerId + ":" + this.team + ":" + new_x + ":" + new_y;
                         sendMessage(message);
                     }
                 } catch (StaleProxyException e) {

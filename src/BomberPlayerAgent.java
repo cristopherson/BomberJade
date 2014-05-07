@@ -1,8 +1,12 @@
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,10 +20,12 @@ import jade.lang.acl.ACLMessage;
 public class BomberPlayerAgent extends Agent {
 
     private boolean logged = false;
+    private boolean moving = false;
     private BomberPlayer player;
     private int playerId;
-    private int x;
-    private int y;
+    private GridCoordinates new_pos, prev_pos;
+    private LinkedList<GridCoordinates> bombs;
+    private LinkedList<GridCoordinates> enemies;
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -40,8 +46,7 @@ public class BomberPlayerAgent extends Agent {
         addBehaviour(new TickerBehaviour(this, 500) {
             protected void onTick() {
                 // perform operation Y
-            	/* get the first message on the message queue.
-                 * is it possible to get a message not meant for me?
+                /* get the first message on my message queue.
                  */
                 ACLMessage msg = receive();
                 /* message has been received */
@@ -63,35 +68,115 @@ public class BomberPlayerAgent extends Agent {
                                 int receivedX = Integer.parseInt(args[3]);
                                 int receivedY = Integer.parseInt(args[4]);
 
+                                /* Is mine the reported position? */
                                 if (receivedPlayer == playerId) {
                                     System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
-                                    x = receivedX;
-                                } else if (receivedTeam == player.team) {
-                                    System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");
-                                    y = receivedY;
+                                    new_pos.x = receivedX;
+                                    new_pos.y = receivedY;
+
+                                    /* I'm attempting to go somewhere but I can't... there's a wall.
+                                     * blow it up!
+                                     */
+                                    if (new_pos.x == prev_pos.x && new_pos.y == prev_pos.y && moving) {
+                                        moveRequest(4);
+                                    }
+                                /* Is an enemy position what I've received? */
+                                } else if (receivedTeam != player.team) {
+                                        System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
+                                        Iterator<GridCoordinates> i = enemies.iterator();
+                                        GridCoordinates current;
+                                        boolean found = false;
+
+                                        while (i.hasNext()) {
+                                                current = i.next();
+                                                if (current.id == receivedPlayer) {
+                                                        current.x = receivedX;
+                                                        current.y = receivedY;
+                                                        found = true;
+                                                        break;
+                                                }
+                                        }
+
+                                        if (!found) {
+                                                current = new GridCoordinates();
+                                                current.id = receivedPlayer;
+										current.x = receivedX;
+										current.y = receivedY;
+                                                enemies.add(current);
+                                        }
+                                /* Is it an ally then? */
                                 } else {
-                                    System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
+                                        /* TODO: Do I care? Maybe, if we want to work in teams... but later */
+                                        System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");                                    
+                                }
+
+                            } else if (args[0].equals("Dead")) {
+                                int receivedPlayer = Integer.parseInt(args[1]);
+                                int receivedTeam = Integer.parseInt(args[2]);
+
+                                /* only care about enemies for now */
+                                if (receivedTeam != player.team) {
+                                        System.out.println(receivedPlayer + "dead enemy " + receivedPlayer + " detected");
+                                        Iterator<GridCoordinates> i = enemies.iterator();
+                                        GridCoordinates current;
+                                        boolean found = false;
+
+                                        while (i.hasNext()) {
+                                                current = i.next();
+                                                if (current.id == receivedPlayer) {
+                                                        enemies.remove(i);
+                                                        found = true;
+                                                        break;
+                                                }
+                                        }
+
+                                        if (!found) {
+                                                System.out.println("Dead enemy not in list!?!");
+                                        }
+                                /* Is it an ally then? */
                                 }
 
                             } else if (args[0].equals("Bomb")) {
                                 int receivedX = Integer.parseInt(args[1]);
                                 int receivedY = Integer.parseInt(args[2]);
 
+                                GridCoordinates current = new GridCoordinates();
+                                current.x = receivedX;
+                                current.y = receivedY;
+
+                                bombs.add(current);
+
                                 System.out.println(playerId + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+
                             } else if (args[0].equals("Explosion")) {
                                 int receivedX = Integer.parseInt(args[1]);
                                 int receivedY = Integer.parseInt(args[2]);
 
                                 System.out.println(playerId + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
+                                Iterator<GridCoordinates> i = bombs.iterator();
+                                GridCoordinates current;
+                                boolean found = false;
+
+                                while (i.hasNext()) {
+                                        current = i.next();
+                                        if (current.x == receivedX && current.y == receivedY) {
+                                                bombs.remove(i);
+                                                found = true;
+                                                break;
+                                        }
+                                }
+
+                                if (!found) {
+                                        System.out.println("Exploded bomb not found!?!");
+                                }
                             }
                             break;
                         default:
                             System.out.println("Unexpected type message " + performative + "" + content);
                     }
-
-                    /* no message received. Send a message if I have not said my name */
                 }
 
+                /* Send a message if I have not said my name */
                 if (!logged) {
                     msg = new ACLMessage(ACLMessage.SUBSCRIBE);
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
@@ -103,6 +188,7 @@ public class BomberPlayerAgent extends Agent {
                      * Request the scenario to move me.  
                      *  */
                 } else {
+                    /*
                     msg = new ACLMessage(ACLMessage.REQUEST);
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
                     msg.setLanguage("English");
@@ -110,9 +196,30 @@ public class BomberPlayerAgent extends Agent {
                     int move = (int) (Math.random() * 5);
                     msg.setContent("Move:" + move);
                     send(msg);
+                    */
                 }
             }
         });
 
+    }
+
+    /**
+     * Send move request to host agent.
+     * Movements are interpreted as follows:
+     * UP    = 0
+     * DOWN  = 1
+     * LEFT  = 2
+     * RIGHT = 3
+     * BOMB  = 4
+     */
+    private void moveRequest(int move) {
+        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+        msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setOntology("Weather-forecast-ontology");
+        msg.setContent("Move:" + move);
+        send(msg);
+        /* TODO: would I need to change this somewhere else? */
+        moving = true;
     }
 }
