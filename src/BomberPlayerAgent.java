@@ -19,12 +19,12 @@ public class BomberPlayerAgent extends Agent {
     private int playerId;
     private int team;
     private int x;
-    private int y;           
+    private int y;
 
-    protected void setup() {        
+    protected void setup() {
         Object[] args = this.getArguments();
-        String localName =getAID().getLocalName();
-        
+        String localName = getAID().getLocalName();
+
         team = (Integer) args[0];
         playerId = Integer.parseInt(localName.replaceAll("Bomber", ""));
         // Printout a welcome message
@@ -48,43 +48,43 @@ public class BomberPlayerAgent extends Agent {
                     int performative = msg.getPerformative();
                     String content = msg.getContent();
                     System.out.println("message is of performative " + performative);
-                    switch(performative) {
+                    switch (performative) {
                         case ACLMessage.CONFIRM:
                             logged = true;
                             break;
                         case ACLMessage.INFORM:
-                            String args[]=content.split(":");
-                            
-                            if(args[0].equals("Player")){
+                            String args[] = content.split(":");
+
+                            if (args[0].equals("Player")) {
                                 int receivedPlayer = Integer.parseInt(args[1]);
                                 int receivedTeam = Integer.parseInt(args[2]);
                                 int receivedX = Integer.parseInt(args[3]);
                                 int receivedY = Integer.parseInt(args[4]);
-                                
-                                if(receivedPlayer == playerId){
-                                    System.out.println("Player " + receivedPlayer + " is at position (" + receivedX +","+receivedY+")");
+
+                                if (receivedPlayer == playerId) {
+                                    System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
                                     x = receivedX;
-                                } else if(receivedTeam == team) {
-                                    System.out.println("Player " + receivedPlayer + " is on " + playerId +"'s team");
+                                } else if (receivedTeam == team) {
+                                    System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");
                                     y = receivedY;
                                 } else {
-                                    System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX +","+receivedY+")");
+                                    System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
                                 }
-                                
-                            } else if(args[0].equals("Bomb")){
+
+                            } else if (args[0].equals("Bomb")) {
                                 int receivedX = Integer.parseInt(args[1]);
                                 int receivedY = Integer.parseInt(args[2]);
-                                
-                                System.out.println(playerId + " player's detected a bomb at position (" + receivedX +","+receivedY+")");
-                            } else if(args[0].equals("Explosion")){
+
+                                System.out.println(playerId + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+                            } else if (args[0].equals("Explosion")) {
                                 int receivedX = Integer.parseInt(args[1]);
                                 int receivedY = Integer.parseInt(args[2]);
-                                
-                                System.out.println(playerId + " player's detected an explosion at position (" + receivedX +","+receivedY+")");                                
+
+                                System.out.println(playerId + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
                             }
                             break;
                         default:
-                            System.out.println("Unexpected type message " + performative+ ""+ content);
+                            System.out.println("Unexpected type message " + performative + "" + content);
                     }
 
                     /* no message received. Send a message if I have not said my name */
