@@ -90,6 +90,15 @@ public class BomberMain extends Agent {
 
                     switch (performative) {
                         case ACLMessage.SUBSCRIBE:
+                            boolean subscribeAgent = true;
+
+                           for(int i = 0; i < index && subscribeAgent; i++) {
+                                if(subscribers[i].equals(agent))
+                                    subscribeAgent = false;
+                            }
+
+                           if(!subscribeAgent)
+                               break;
 
                             System.out.println(getAID().getLocalName() + " got subscription request");
                             System.out.println(agent + " says " + content);
