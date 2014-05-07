@@ -97,6 +97,12 @@ public class BomberPlayer extends Thread {
      */
     public int x = 0;
     public int y = 0;
+
+    /**
+     * Previous player position
+     */
+    public int prev_x = -1;
+	public int prev_y = -1;
     /**
      * player's number
      */
@@ -122,6 +128,11 @@ public class BomberPlayer extends Thread {
      * variable to determine player team
      */
     private static int teamAssigner = 0;
+
+    /**
+     * Actual team for this player
+     */
+    public int team;
 
     /**
      * Controller for this player's agent
@@ -1281,6 +1292,8 @@ public class BomberPlayer extends Thread {
      */
     public void paint2D(Graphics graphics) {
         Graphics2D g2 = (Graphics2D) graphics;
+        int new_x;
+        int new_y;
         /**
          * set the rendering hints
          */
@@ -1308,7 +1321,40 @@ public class BomberPlayer extends Thread {
                 g2.drawImage(sprites[playerNo - 1][state][0],
                         x, y - (BomberMain.size / 2), width, height, null);
             }
+            /* TODO: send player position notifications here */
+            /* this is to convert x y to grid positions used for bombs */
+            new_x = (x / 15);
+            new_y = (y / 15);
+
+            if (new_x != prev_x || new_y != prev_y) {
+                try {
+                    String message = "player:" + ac.getName() + ":" + this.team + ":" + new_x + ":" + new_y;
+                    sendMessage(message);
+                } catch (StaleProxyException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                }
+                prev_x = new_x;
+                prev_y = new_y;
+            }
         }
+    }
+
+    /**
+     * Send a notification message to agents
+     */
+
+    public void sendMessage(String message) {
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        msg.setLanguage("English");
+        msg.setOntology("Weather-forecast-ontology");
+        msg.setContent(message);
+        /* Iterate over the list of subscribed agents */
+        for (int i = 0; i < BomberMain.subscribers.length; i++) {
+            msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
+        }
+        mainAgent.send(msg);
+
     }
 
     public AgentController createBomberAgent(
@@ -1325,7 +1371,7 @@ public class BomberPlayer extends Thread {
         ContainerController cc = runtime.createAgentContainer(p);
         // arguments for the agent constructor
         Object[] args = new Object[5];
-        args[0] = teamAssigner;
+        args[0] = this;
 
         if (cc != null) {
             // Create the Book Buyer agent and start it
@@ -1333,6 +1379,7 @@ public class BomberPlayer extends Thread {
                 ac = cc.createNewAgent(name,
                         "BomberPlayerAgent",
                         args);
+                team = teamAssigner;
                 ac.start();
                 teamAssigner++;
                 /* right value is the number of desired different teams */
