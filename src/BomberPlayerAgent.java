@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -20,7 +21,6 @@ import jade.lang.acl.ACLMessage;
 public class BomberPlayerAgent extends Agent {
 
     private boolean logged = false;
-    private boolean moving = false;
     private BomberPlayer player;
     private LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
     private LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
@@ -41,7 +41,7 @@ public class BomberPlayerAgent extends Agent {
          System.out.println("My addresses are:");*/
 
         /* this agent will execute this behaviour every 500 ms */
-        addBehaviour(new TickerBehaviour(this, 500) {
+        addBehaviour(new TickerBehaviour(this, 50) {
             protected void onTick() {
                 // perform operation Y
                 GridCoordinates new_pos = new GridCoordinates();
@@ -80,8 +80,8 @@ public class BomberPlayerAgent extends Agent {
                                     /* I'm attempting to go somewhere but I can't... there's a wall.
                                      * blow it up!
                                      */
-                                    if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y && moving) {
-                                        moveRequest(4);
+                                    if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y && !player.attemptingToMove) {
+                                        moveRequest(BomberPlayer.BOMB);
                                     } else {
                                         player.prev_pos.x = new_pos.x;
                                         player.prev_pos.y = new_pos.y;
@@ -251,8 +251,8 @@ public class BomberPlayerAgent extends Agent {
         msg.setLanguage("English");
         msg.setOntology("Weather-forecast-ontology");
         msg.setContent("Move:" + move);
+        /* Consider that I am attempting to move */
+        player.attemptingToMove = true;
         send(msg);
-        /* TODO: would I need to change this somewhere else? */
-        moving = true;
     }
 }

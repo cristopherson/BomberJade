@@ -144,7 +144,16 @@ public class BomberPlayer extends Thread {
      */
     BomberMain mainAgent = null;
 
+    /**
+     * Coordinates for my previous position
+     */
     GridCoordinates prev_pos = new GridCoordinates();
+
+    /**
+     * Flag to determine whether I am attempting to move
+     */
+    public boolean attemptingToMove = false;
+
     /**
      * byte enumerations
      */
@@ -175,7 +184,7 @@ public class BomberPlayer extends Thread {
      * rendering hints
      */
     private static Object hints = null;
-    
+
     private boolean notifyStaticPosition = false;
 
     static {

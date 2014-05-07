@@ -1,6 +1,7 @@
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import java.awt.Dimension;
@@ -76,7 +77,7 @@ public class BomberMain extends Agent {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
 
-        addBehaviour(new TickerBehaviour(this, 100) {
+        addBehaviour(new TickerBehaviour(this, 10) {
             protected void onTick() {
                 // perform operation Y
                 boolean positionsSent = false;
@@ -134,6 +135,7 @@ public class BomberMain extends Agent {
                                     }
                                     game.keyReleased(event);
                                 }
+                                game.players[index - 1].attemptingToMove = false;
                             }
                             break;
                     }
