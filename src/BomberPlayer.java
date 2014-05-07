@@ -118,22 +118,21 @@ public class BomberPlayer extends Thread {
      */
     private boolean clear = false;
 
-    
     /**
      * variable to determine player team
      */
     private static int teamAssigner = 0;
-    
+
     /**
      * Controller for this player's agent
      */
     AgentController ac = null;
-    
+
     /**
      * Reference to the main agent
      */
     BomberMain mainAgent = null;
-    
+
     /**
      * byte enumerations
      */
@@ -151,8 +150,8 @@ public class BomberPlayer extends Thread {
     private static final int RIGHT = 3;
     private static final int BOMB = 4;
     private static final int EXPLODING = 4;
-    
-    /** 
+
+    /**
      * Number of desired teams
      */
     private static final int NUMBER_OF_TEAMS = 2;
@@ -311,7 +310,7 @@ public class BomberPlayer extends Thread {
         /**
          * start looping
          */
-        createBomberAgent("192.168.0.13", "1099","Bomber" + playerNo);
+        createBomberAgent("192.168.0.13", "1099", "Bomber" + playerNo);
         start();
     }
 
@@ -679,13 +678,14 @@ public class BomberPlayer extends Thread {
                      * create bomb
                      */
                     map.createBomb(x + halfSize, y + halfSize, playerNo);
-                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);                    
-                    msg.setLanguage("English");                    
+                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                    msg.setLanguage("English");
                     msg.setOntology("Weather-forecast-ontology");
-                    msg.setContent("Bomb:" + (x + halfSize) + ":" + (y+halfSize));
+                    msg.setContent("Bomb:" + (x + halfSize) + ":" + (y + halfSize));
                     /* Iterate over the list of subscribed agents */
-                    for (int i = 0; i < mainAgent.subscribers.length; i++)
-                    	msg.addReceiver(new AID(mainAgent.subscribers[i], AID.ISLOCALNAME));                    
+                    for (int i = 0; i < mainAgent.subscribers.length; i++) {
+                        msg.addReceiver(new AID(mainAgent.subscribers[i], AID.ISLOCALNAME));
+                    }
                     mainAgent.send(msg);
                 }
             }
@@ -1222,14 +1222,14 @@ public class BomberPlayer extends Thread {
             /**
              * if it's dead, then exit the loop
              */
-            if (isDead) {            	
-            	try {
-					System.out.println("Killing agent controller" + ac.getName());
-					ac.kill();
-				} catch (StaleProxyException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+            if (isDead) {
+                try {
+                    System.out.println("Killing agent controller" + ac.getName());
+                    ac.kill();
+                } catch (StaleProxyException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 break;
             }
             /**
@@ -1320,7 +1320,6 @@ public class BomberPlayer extends Thread {
             }
         }
     }
-    
 
     public AgentController createBomberAgent(
             String host, // JADE Book Trading environment Main Container
@@ -1337,7 +1336,7 @@ public class BomberPlayer extends Thread {
         // arguments for the agent constructor
         Object[] args = new Object[5];
         args[0] = teamAssigner;
-        
+
         if (cc != null) {
             // Create the Book Buyer agent and start it
             try {

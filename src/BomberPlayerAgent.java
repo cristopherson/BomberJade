@@ -14,12 +14,13 @@ import jade.lang.acl.ACLMessage;
  * @author cristopherson
  */
 public class BomberPlayerAgent extends Agent {
+
     private boolean logged = false;
     private int team;
 
     protected void setup() {
-    	Object[] args = this.getArguments();
-    	team = (Integer) args[0];
+        Object[] args = this.getArguments();
+        team = (Integer) args[0];
         // Printout a welcome message
         System.out.println("Hello World. I’m a bomber agent!");
         System.out.println("My local-name is " + getAID().getLocalName());
@@ -32,8 +33,8 @@ public class BomberPlayerAgent extends Agent {
             protected void onTick() {
                 // perform operation Y
             	/* get the first message on the message queue.
-            	 * is it possible to get a message not meant for me?
-            	 */
+                 * is it possible to get a message not meant for me?
+                 */
                 ACLMessage msg = receive();
                 /* message has been received */
                 if (msg != null) {
@@ -41,26 +42,26 @@ public class BomberPlayerAgent extends Agent {
                     int performative = msg.getPerformative();
                     System.out.println("message is of performative " + performative);
                     logged = true;
-                    
-                /* no message received. Send a message if I have not said my name */
-                } else if(!logged){
+
+                    /* no message received. Send a message if I have not said my name */
+                } else if (!logged) {
                     msg = new ACLMessage(ACLMessage.SUBSCRIBE);
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
                     msg.setLanguage("English");
                     msg.setOntology("Weather-forecast-ontology");
                     msg.setContent("Hi All\nI am " + getAID().getLocalName());
                     send(msg);
-                /* no message received but I already said my name
-                 * Request the scenario to move me.  
-                 *  */    
+                    /* no message received but I already said my name
+                     * Request the scenario to move me.  
+                     *  */
                 } else {
                     msg = new ACLMessage(ACLMessage.REQUEST);
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
                     msg.setLanguage("English");
                     msg.setOntology("Weather-forecast-ontology");
-                    int move = (int)(Math.random() * 5);
-                    msg.setContent("Move:"+move);
-                    send(msg);                    
+                    int move = (int) (Math.random() * 5);
+                    msg.setContent("Move:" + move);
+                    send(msg);
                 }
             }
         });

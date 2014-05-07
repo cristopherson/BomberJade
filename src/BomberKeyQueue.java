@@ -5,7 +5,6 @@
  * @author Sammy Leong
  * @version 1.0
  */
-
 /**
  * This class keeps track of the keyboard input in a queue for each player.
  */

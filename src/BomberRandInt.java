@@ -5,7 +5,6 @@
  * @author Sammy Leong
  * @version 1.0
  */
-
 /**
  * This class generates random integers within a given range by creating a stack
  * of 101 random doubles then generate random integers from the stack randomly.
