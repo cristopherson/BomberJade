@@ -39,7 +39,7 @@ public class BomberPlayerAgent extends Agent {
          System.out.println("My addresses are:");*/
 
         /* this agent will execute this behaviour every 500 ms */
-        addBehaviour(new TickerBehaviour(this, 10) {
+        addBehaviour(new TickerBehaviour(this, 20) {
             protected void onTick() {
                 // perform operation Y
                 GridCoordinates new_pos = new GridCoordinates();
@@ -78,6 +78,7 @@ public class BomberPlayerAgent extends Agent {
                                     /* I'm attempting to go somewhere but I can't... there's a wall.
                                      * blow it up!
                                      */
+                                    /* TODO: may need extra locks here to prevent placing bombs if moving away from one */
                                     if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y && !player.attemptingToMove) {
                                         moveRequest(BomberPlayer.BOMB);
                                     } else {
@@ -188,45 +189,114 @@ public class BomberPlayerAgent extends Agent {
                     msg.setOntology("Weather-forecast-ontology");
                     msg.setContent("Hi All\nI am " + getAID().getLocalName());
                     send(msg);
-                    /* no message received but I already said my name
-                     * Request the scenario to move me.
-                     *  */
                 }
 
                 System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
                                         + player.enemies.size() + " enemies in sight");
 
-                    if (new_pos != null) {
-                        int move = -1;
+                int move = -1;
 
-                        do {
-                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x, new_pos.y + 1);
-                            if (move != -1) {
-                                break;
-                            }
-                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x, new_pos.y - 1);
-                            if (move != -1) {
-                                break;
-                            }
-                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x - 1, new_pos.y);
-                            if (move != -1) {
-                                break;
-                            }
-                            move = MoveValidator.nextMove(new_pos.x, new_pos.y, new_pos.x + 1, new_pos.y);
-                            if (move == -1) {
-                                System.out.println("Can not move at at all");
-                            }
-                        } while (false);
+                /* Look for bombs */
+                if (player.bombs.size() > 0) {
+                    /* player in same row as bomb? */
+                    for (int i = 0; i < player.bombs.size(); i++) {
+                        if (player.bombs.get(i).x == player.prev_pos.x) {
+                            /* attempt move to another row */
+                            do {
+                                /* TODO: will need to protect myself from going back to danger */
+                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                                            player.prev_pos.x +1, player.prev_pos.y);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    return;
+                                }
 
-                        if (move != -1) {
-                            moveRequest(move);
+                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                                            player.prev_pos.x -1, player.prev_pos.y);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    return;
+                                }
+                            } while (true);
                         }
                     }
+
+
+                    /* TODO: I'm attempting to save time by sending consecutive requests...
+                     * but the validation is wrong because I have not yet moved.
+                     * Because of this, I am adding returns after row and column checks... but
+                     * I believe that could be optimized.
+                     */
+                    /* player in same column as bomb? */
+                    for (int i = 0; i < player.bombs.size(); i++) {
+                        if (player.bombs.get(i).y == player.prev_pos.y) {
+                            /* attempt move to another column */
+                            do {
+                                /* TODO: will need to protect myself from going back to danger */
+                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                                            player.prev_pos.x, player.prev_pos.y+1);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    return;
+                                }
+
+                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                                            player.prev_pos.x, player.prev_pos.y-1);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    return;
+                                }
+                            } while (true);
+                        }
+                    }
+                    //moveRequest(move);
                 }
 
+                /* Look for enemies */
+                if (player.enemies.size() > 0) {
+                    /* look for closer enemy */
+                    int closer_index = -1;
+                    /* no player can be this far */
+                    int smaller = 36;
+                    int distance;
+
+                    for (int i = 0; i < player.bombs.size(); i++) {
+                        distance = Math.abs(player.prev_pos.x - player.enemies.get(i).x)
+                                    + Math.abs(player.prev_pos.x - player.enemies.get(i).y);
+                        if (distance < smaller) {
+                            smaller = distance;
+                            closer_index = i;
+                        }
+                    }
+
+                    if (closer_index >= 4 || closer_index < 0) {
+                        /* impossible scenario!! should I make a random move? */
+                        return;
+                    }
+
+                    /* attempt to get near, choice of x or y could be randomized,
+                     * for now first through x then through y */
+                    do {
+                        int x_dir = (player.prev_pos.x - player.enemies.get(closer_index).x) < 0 ? 1 : -1;
+                           move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                                            player.prev_pos.x + x_dir, player.prev_pos.y);
+                        if (move != -1) {
+                            moveRequest(move);
+                               return;
+                        }
+
+                        int y_dir = (player.prev_pos.y - player.enemies.get(closer_index).y) < 0 ? 1 : -1;
+                        move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                                        player.prev_pos.x, player.prev_pos.y + y_dir);
+                        if (move != -1) {
+                            moveRequest(move);
+                            return;
+                        }
+                    } while (true);
+                }
+            }
         }
         );
-
     }
 
     /**
@@ -239,13 +309,16 @@ public class BomberPlayerAgent extends Agent {
      * BOMB  = 4
      */
     private void moveRequest(int move) {
-        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-        msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
-        msg.setLanguage("English");
-        msg.setOntology("Weather-forecast-ontology");
-        msg.setContent("Move:" + move);
-        /* Consider that I am attempting to move */
-        player.attemptingToMove = true;
-        send(msg);
+        /* ensure only valid requests are sent */
+        if (move >= 0 && move <= 4) {
+            ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+            msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
+            msg.setLanguage("English");
+            msg.setOntology("Weather-forecast-ontology");
+            msg.setContent("Move:" + move);
+            /* Consider that I am attempting to move */
+            player.attemptingToMove = true;
+            send(msg);
+        }
     }
 }
