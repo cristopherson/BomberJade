@@ -23,8 +23,8 @@ public class BomberPlayerAgent extends Agent {
     private boolean moving = false;
     private BomberPlayer player;
     private GridCoordinates new_pos, prev_pos;
-    private LinkedList<GridCoordinates> bombs;
-    private LinkedList<GridCoordinates> enemies;
+    private LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
+    private LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -196,13 +196,8 @@ public class BomberPlayerAgent extends Agent {
                      *  */
                 } else {
                     /*
-                    msg = new ACLMessage(ACLMessage.REQUEST);
-                    msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
-                    msg.setLanguage("English");
-                    msg.setOntology("Weather-forecast-ontology");
                     int move = (int) (Math.random() * 5);
-                    msg.setContent("Move:" + move);
-                    send(msg);
+                    moveRequest(move);
                     */
 
                     if (new_pos != null) {
@@ -228,8 +223,7 @@ public class BomberPlayerAgent extends Agent {
                         } while (false);
 
                         if (move != -1) {
-                            msg.setContent("Move:" + move);
-                            send(msg);
+                            moveRequest(move);
                         }
                     }
                 }
