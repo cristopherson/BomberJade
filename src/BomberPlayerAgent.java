@@ -22,7 +22,6 @@ public class BomberPlayerAgent extends Agent {
     private boolean logged = false;
     private boolean moving = false;
     private BomberPlayer player;
-    private int playerId;
     private GridCoordinates new_pos, prev_pos;
     private LinkedList<GridCoordinates> bombs;
     private LinkedList<GridCoordinates> enemies;
@@ -32,7 +31,7 @@ public class BomberPlayerAgent extends Agent {
         player = (BomberPlayer) args[0];
 
         String localName = getAID().getLocalName();
-        playerId = Integer.parseInt(localName.replaceAll("Bomber", ""));
+        //playerId = Integer.parseInt(localName.replaceAll("Bomber", ""));
 
         // Printout a welcome message
         System.out.println("Hello World. I’m a bomber agent!");
@@ -51,6 +50,9 @@ public class BomberPlayerAgent extends Agent {
                 /* get the first message on my message queue.
                  */
                 ACLMessage msg = receive();
+                int x = player.x >> BomberMain.shiftCount;
+                int y = player.y >> BomberMain.shiftCount;
+
                 /* message has been received */
                 if (msg != null) {
                     System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
@@ -71,7 +73,7 @@ public class BomberPlayerAgent extends Agent {
                                 int receivedY = Integer.parseInt(args[4]);
 
                                 /* Is mine the reported position? */
-                                if (receivedPlayer == playerId) {
+                                if (receivedPlayer == player.playerNo) {
                                     System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
                                     new_pos.x = receivedX;
                                     new_pos.y = receivedY;
@@ -112,7 +114,7 @@ public class BomberPlayerAgent extends Agent {
                                 /* Is it an ally then? */
                                 } else {
                                         /* TODO: Do I care? Maybe, if we want to work in teams... but later */
-                                        System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");                                    
+                                        System.out.println("Player " + receivedPlayer + " is on " + player.playerNo + "'s team");
                                 }
 
                             } else if (args[0].equals("Dead")) {
@@ -151,13 +153,13 @@ public class BomberPlayerAgent extends Agent {
 
                                 bombs.add(current);
 
-                                System.out.println(playerId + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+                                System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
 
                             } else if (args[0].equals("Explosion")) {
                                 int receivedX = Integer.parseInt(args[1]);
                                 int receivedY = Integer.parseInt(args[2]);
 
-                                System.out.println(playerId + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
+                                System.out.println(player.playerNo + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
                                 Iterator<GridCoordinates> i = bombs.iterator();
                                 GridCoordinates current;
                                 boolean found = false;

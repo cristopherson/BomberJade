@@ -106,7 +106,7 @@ public class BomberPlayer extends Thread {
     /**
      * player's number
      */
-    private int playerNo = 0;
+    public int playerNo = 0;
     /**
      * user's state : default to face down
      */
