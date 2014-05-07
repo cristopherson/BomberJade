@@ -1,6 +1,7 @@
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -55,7 +56,7 @@ public class BomberPlayerAgent extends Agent {
                     System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     int performative = msg.getPerformative();
                     String content = msg.getContent();
-                    System.out.println("message is of performative " + performative);
+                    //System.out.println("message is of performative " + performative);
                     switch (performative) {
                         case ACLMessage.CONFIRM:
                             logged = true;
@@ -218,7 +219,7 @@ public class BomberPlayerAgent extends Agent {
                                     moveRequest(move);
                                     return;
                                 }
-                            } while (true);
+                            } while (false);
                         }
                     }
 
@@ -247,10 +248,12 @@ public class BomberPlayerAgent extends Agent {
                                     moveRequest(move);
                                     return;
                                 }
-                            } while (true);
+                            } while (false);
                         }
                     }
                     //moveRequest(move);
+                } else {
+                    System.out.println(player.playerNo + ": No bombs in range");
                 }
 
                 /* Look for enemies */
@@ -270,11 +273,17 @@ public class BomberPlayerAgent extends Agent {
                         }
                     }
 
-                    if (closer_index >= 4 || closer_index < 0) {
+                    if (closer_index > 4 || closer_index < 0) {
                         /* impossible scenario!! should I make a random move? */
+                        /* between 0 and 3, no bombs! */
+                        Random rand = new Random();
+                        System.out.println(player.playerNo + ": Making a random move");
+                        moveRequest(rand.nextInt(4));
                         return;
                     }
 
+                    System.out.println(player.playerNo + ": closest player is at position "
+                                        + player.enemies.get(closer_index).x + ":" + player.enemies.get(closer_index).y);
                     /* attempt to get near, choice of x or y could be randomized,
                      * for now first through x then through y */
                     do {
@@ -283,7 +292,7 @@ public class BomberPlayerAgent extends Agent {
                                                             player.prev_pos.x + x_dir, player.prev_pos.y);
                         if (move != -1) {
                             moveRequest(move);
-                               return;
+                            return;
                         }
 
                         int y_dir = (player.prev_pos.y - player.enemies.get(closer_index).y) < 0 ? 1 : -1;
@@ -293,8 +302,13 @@ public class BomberPlayerAgent extends Agent {
                             moveRequest(move);
                             return;
                         }
-                    } while (true);
+                    } while (false);
                 }
+                /* nothing to act upon. Move randomly */
+                Random rand = new Random();
+                System.out.println(player.playerNo + ": Making a random move");
+                moveRequest(rand.nextInt(4));
+                return;
             }
         }
         );
