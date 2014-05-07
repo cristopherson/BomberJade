@@ -80,7 +80,8 @@ public class BomberPlayerAgent extends Agent {
                                      */
                                     /* TODO: may need extra locks here to prevent placing bombs if moving away from one */
                                     if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y && !player.attemptingToMove) {
-                                        moveRequest(BomberPlayer.BOMB);
+                                        if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
+                                            moveRequest(BomberPlayer.BOMB);
                                     } else {
                                         player.prev_pos.x = new_pos.x;
                                         player.prev_pos.y = new_pos.y;
@@ -260,7 +261,7 @@ public class BomberPlayerAgent extends Agent {
                     int smaller = 36;
                     int distance;
 
-                    for (int i = 0; i < player.bombs.size(); i++) {
+                    for (int i = 0; i < player.enemies.size(); i++) {
                         distance = Math.abs(player.prev_pos.x - player.enemies.get(i).x)
                                     + Math.abs(player.prev_pos.x - player.enemies.get(i).y);
                         if (distance < smaller) {

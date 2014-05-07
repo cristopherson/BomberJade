@@ -32,7 +32,7 @@ public class BomberPlayer extends Thread {
     /**
      * map object handle
      */
-    private BomberMap map = null;
+    public BomberMap map = null;
     /**
      * player's own bomb grid (must have for synchronization)
      */
