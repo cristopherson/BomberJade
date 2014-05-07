@@ -1,4 +1,6 @@
 
+import jade.wrapper.StaleProxyException;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -368,6 +370,13 @@ public class BomberGame extends JPanel
             for (int i = 0; i < totalPlayers; i++) {
                 if (!players[i].isDead()) {
                     winner = i;
+                    /* stop the agent for the winning player */
+                    try {
+						players[i].ac.kill();
+					} catch (StaleProxyException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                     break;
                 }
             }
