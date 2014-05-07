@@ -22,8 +22,6 @@ public class BomberPlayerAgent extends Agent {
 
     private boolean logged = false;
     private BomberPlayer player;
-    private LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
-    private LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -41,7 +39,7 @@ public class BomberPlayerAgent extends Agent {
          System.out.println("My addresses are:");*/
 
         /* this agent will execute this behaviour every 500 ms */
-        addBehaviour(new TickerBehaviour(this, 50) {
+        addBehaviour(new TickerBehaviour(this, 10) {
             protected void onTick() {
                 // perform operation Y
                 GridCoordinates new_pos = new GridCoordinates();
@@ -89,7 +87,7 @@ public class BomberPlayerAgent extends Agent {
                                 /* Is an enemy position what I've received? */
                                 } else if (receivedTeam != player.team) {
                                         System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
-                                        Iterator<GridCoordinates> i = enemies.iterator();
+                                        Iterator<GridCoordinates> i = player.enemies.iterator();
                                         GridCoordinates current;
                                         boolean found = false;
 
@@ -108,7 +106,7 @@ public class BomberPlayerAgent extends Agent {
                                                 current.id = receivedPlayer;
                                         current.x = receivedX;
                                         current.y = receivedY;
-                                                enemies.add(current);
+                                                player.enemies.add(current);
                                         }
                                 /* Is it an ally then? */
                                 } else {
@@ -123,14 +121,14 @@ public class BomberPlayerAgent extends Agent {
                                 /* only care about enemies for now */
                                 if (receivedTeam != player.team) {
                                         System.out.println(receivedPlayer + "dead enemy " + receivedPlayer + " detected");
-                                        Iterator<GridCoordinates> i = enemies.iterator();
+                                        Iterator<GridCoordinates> i = player.enemies.iterator();
                                         GridCoordinates current;
                                         boolean found = false;
 
                                         while (i.hasNext()) {
                                                 current = i.next();
                                                 if (current.id == receivedPlayer) {
-                                                        enemies.remove(i);
+                                                        player.enemies.remove(i);
                                                         found = true;
                                                         break;
                                                 }
@@ -150,7 +148,7 @@ public class BomberPlayerAgent extends Agent {
                                 current.x = receivedX;
                                 current.y = receivedY;
 
-                                bombs.add(current);
+                                player.bombs.add(current);
 
                                 System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
 
@@ -159,14 +157,14 @@ public class BomberPlayerAgent extends Agent {
                                 int receivedY = Integer.parseInt(args[2]);
 
                                 System.out.println(player.playerNo + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
-                                Iterator<GridCoordinates> i = bombs.iterator();
+                                Iterator<GridCoordinates> i = player.bombs.iterator();
                                 GridCoordinates current;
                                 boolean found = false;
 
                                 while (i.hasNext()) {
                                         current = i.next();
                                         if (current.x == receivedX && current.y == receivedY) {
-                                                bombs.remove(i);
+                                                player.bombs.remove(i);
                                                 found = true;
                                                 break;
                                         }
@@ -193,14 +191,10 @@ public class BomberPlayerAgent extends Agent {
                     /* no message received but I already said my name
                      * Request the scenario to move me.
                      *  */
-                } else {
-                    /*
-                    int move = (int) (Math.random() * 5);
-                    moveRequest(move);
-                    */
+                }
 
-                    System.out.println("Player " + player.playerNo + " has " + bombs.size() + " bombs and "
-                                        + enemies.size() + " enemies in sight");
+                System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
+                                        + player.enemies.size() + " enemies in sight");
 
                     if (new_pos != null) {
                         int move = -1;
@@ -230,7 +224,6 @@ public class BomberPlayerAgent extends Agent {
                     }
                 }
 
-            }
         }
         );
 

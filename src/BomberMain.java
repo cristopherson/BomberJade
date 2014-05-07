@@ -77,7 +77,7 @@ public class BomberMain extends Agent {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
 
-        addBehaviour(new TickerBehaviour(this, 10) {
+        addBehaviour(new TickerBehaviour(this, 5) {
             protected void onTick() {
                 // perform operation Y
                 boolean positionsSent = false;

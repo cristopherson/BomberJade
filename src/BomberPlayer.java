@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.lang.Integer;
+import java.util.LinkedList;
 
 /**
  * File: BomberPlayer.java Copyright: Copyright (c) 2001
@@ -154,6 +155,12 @@ public class BomberPlayer extends Thread {
      */
     public boolean attemptingToMove = false;
 
+    /**
+     * Databases for enemies and bombs...
+     */
+    /* TODO: these may work if static... */
+    public LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
+    public LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
     /**
      * byte enumerations
      */
