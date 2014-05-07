@@ -165,7 +165,7 @@ public class BomberPlayer extends Thread {
     /**
      * Number of desired teams
      */
-    private static final int NUMBER_OF_TEAMS = 2;
+    private static final int NUMBER_OF_TEAMS = 4;
     /**
      * all player sprite images
      */
@@ -1361,7 +1361,7 @@ public class BomberPlayer extends Thread {
         msg.setOntology("Weather-forecast-ontology");
         msg.setContent(message);
         /* Iterate over the list of subscribed agents */
-        for (int i = 0; i < BomberMain.subscribers.length; i++) {
+        for (int i = 0; i < BomberMain.index; i++) {
             msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
         }
         mainAgent.send(msg);
@@ -1408,11 +1408,7 @@ public class BomberPlayer extends Thread {
     }
 
     public void sendPosition() {
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-        msg.addReceiver(new AID("Bomber" + playerNo, AID.ISLOCALNAME));
-        msg.setLanguage("English");
-        msg.setOntology("Weather-forecast-ontology");
-        msg.setContent("Player:" + playerNo + ":" + teamAssigner + ":" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount));
-        mainAgent.send(msg);
+        String message = "Player:" + playerNo + ":" + teamAssigner + ":" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
+        sendMessage(message);
     }
 }

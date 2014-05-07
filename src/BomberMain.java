@@ -39,7 +39,7 @@ public class BomberMain extends Agent {
     /**
      * game object
      */
-    private BomberGame game = null;
+    public BomberGame game = null;
 
     /**
      * sound effect player
@@ -58,7 +58,7 @@ public class BomberMain extends Agent {
     /**
      * Index for subscribed agents
      */
-    private static int index = 0;
+    public static int index = 0;
 
     /**
      * this is the size of each square in the game
@@ -78,7 +78,8 @@ public class BomberMain extends Agent {
 
         addBehaviour(new TickerBehaviour(this, 100) {
             protected void onTick() {
-                // perform operation Y                
+                // perform operation Y
+                boolean positionsSent = false;
                 ACLMessage msg = receive();
                 if (msg != null) {
                     // Process the message
@@ -103,12 +104,12 @@ public class BomberMain extends Agent {
                             msg.setLanguage("English");
                             /* The ontology determines the elements that agents can use within the content of the message.
                              * It defines a vocabulary and relationships between the elements in such a vocabulary. Said relationships
-                             * can be structural or semantic 
+                             * can be structural or semantic
                              */
                             msg.setOntology("Weather-forecast-ontology");
                             msg.setContent("Hi " + agent + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
                             send(msg);
-                            
+
                             game.players[index -1].sendPosition();
                             break;
 
@@ -138,6 +139,15 @@ public class BomberMain extends Agent {
                     }
                 } /* else I did not receive any message... but I may want to act on my own */
 
+                /* If there's no message, players may need to get each other's positions,
+                 * so send them */
+                if (positionsSent == false) {
+                    System.out.println(" Player position needs to be sent.");
+                    for (int i = 0; i < 4; i++) {
+                        BomberGame.players[i].sendPosition();
+                    }
+                    positionsSent = true;
+                }
             }
         });
 

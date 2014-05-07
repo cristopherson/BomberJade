@@ -192,13 +192,16 @@ public class BomberPlayerAgent extends Agent {
                     msg.setContent("Hi All\nI am " + getAID().getLocalName());
                     send(msg);
                     /* no message received but I already said my name
-                     * Request the scenario to move me.  
+                     * Request the scenario to move me.
                      *  */
                 } else {
                     /*
                     int move = (int) (Math.random() * 5);
                     moveRequest(move);
                     */
+
+                    System.out.println("Player " + player.playerNo + " has " + bombs.size() + " bombs and "
+                                        + enemies.size() + " enemies in sight");
 
                     if (new_pos != null) {
                         int move = -1;
