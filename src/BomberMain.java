@@ -77,8 +77,8 @@ public class BomberMain extends Agent {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
 
-        addBehaviour(new TickerBehaviour(this, 5) {
-            protected void onTick() {
+        addBehaviour(new CyclicBehaviour(this) {
+            public void action() {
                 // perform operation Y
                 boolean positionsSent = false;
                 ACLMessage msg = receive();
@@ -112,7 +112,7 @@ public class BomberMain extends Agent {
                             send(msg);
 
                             game.players[index -1].sendPosition();
-                            break;
+                            return;
 
                         case ACLMessage.REQUEST:
                             if (content.startsWith("Move:")) {

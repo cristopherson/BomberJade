@@ -40,8 +40,8 @@ public class BomberPlayerAgent extends Agent {
          System.out.println("My addresses are:");*/
 
         /* this agent will execute this behaviour every 500 ms */
-        addBehaviour(new TickerBehaviour(this, 20) {
-            protected void onTick() {
+        addBehaviour(new CyclicBehaviour(this) {
+            public void action() {
                 // perform operation Y
                 GridCoordinates new_pos = new GridCoordinates();
 
@@ -76,18 +76,19 @@ public class BomberPlayerAgent extends Agent {
                                     new_pos.x = receivedX;
                                     new_pos.y = receivedY;
 
-                                    /* I'm attempting to go somewhere but I can't... there's a wall.
-                                     * blow it up!
-                                     */
-                                    if (player.samePlace) {
-                                        //if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
-                                        moveRequest(BomberPlayer.BOMB);
-                                    }
                                     /* TODO: may need extra locks here to prevent placing bombs if moving away from one */
                                     if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y) {
                                         player.samePlace = true;
                                     } else {
                                         player.samePlace = false;
+                                    }
+
+                                    /* I'm attempting to go somewhere but I can't... there's a wall.
+                                     * blow it up!
+                                     */
+                                    if (player.samePlace) {
+                                        if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
+                                              moveRequest(BomberPlayer.BOMB);
                                     }
 
                                     player.prev_pos.x = new_pos.x;
