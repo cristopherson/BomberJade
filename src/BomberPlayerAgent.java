@@ -65,10 +65,19 @@ public class BomberPlayerAgent extends Agent {
 
                                 if (receivedPlayer == playerId) {
                                     System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
+                                    if((x == receivedX) && (y == receivedY)){
+                                        msg = new ACLMessage(ACLMessage.REQUEST);
+                                        msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
+                                        msg.setLanguage("English");
+                                        msg.setOntology("Weather-forecast-ontology");
+                                        msg.setContent("Move:" + BomberPlayer.BOMB);
+                                        send(msg);
+                                    }
+                                        
                                     x = receivedX;
+                                    y = receivedY;
                                 } else if (receivedTeam == player.team) {
                                     System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");
-                                    y = receivedY;
                                 } else {
                                     System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
                                 }
@@ -107,12 +116,36 @@ public class BomberPlayerAgent extends Agent {
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
                     msg.setLanguage("English");
                     msg.setOntology("Weather-forecast-ontology");
-                    int move = (int) (Math.random() * 5);
-                    msg.setContent("Move:" + move);
-                    send(msg);
+                    int move = -1;
+
+                    do {
+                        move = MoveValidator.nextMove(x, y, x, y + 1);
+                        if (move != -1) {
+                            break;
+                        }
+                        move = MoveValidator.nextMove(x, y, x, y - 1);
+                        if (move != -1) {
+                            break;
+                        }
+                        move = MoveValidator.nextMove(x, y, x - 1, y);
+                        if (move != -1) {
+                            break;
+                        }
+                        move = MoveValidator.nextMove(x, y, x + 1, y);
+                        if (move == -1) {
+                            System.out.println("Can not move at at all");
+                        }
+                    } while (false);
+
+                    if (move != -1) {
+                        msg.setContent("Move:" + move);
+                        send(msg);
+                    }
                 }
+
             }
-        });
+        }
+        );
 
     }
 }
