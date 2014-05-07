@@ -17,14 +17,22 @@ public class BomberPlayerAgent extends Agent {
 
     private boolean logged = false;
     private BomberPlayer player;
+    private int playerId;
+    private int x;
+    private int y;
 
     protected void setup() {
         Object[] args = this.getArguments();
         player = (BomberPlayer) args[0];
+
+        String localName = getAID().getLocalName();
+        playerId = Integer.parseInt(localName.replaceAll("Bomber", ""));
+
         // Printout a welcome message
         System.out.println("Hello World. I’m a bomber agent!");
-        System.out.println("My local-name is " + getAID().getLocalName());
+        System.out.println("My local-name is " + localName);
         System.out.println("I play for team " + player.team);
+
         /*        System.out.println("My GUID is " + getAID().getName());
          System.out.println("My addresses are:");*/
 
@@ -40,13 +48,51 @@ public class BomberPlayerAgent extends Agent {
                 if (msg != null) {
                     System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     int performative = msg.getPerformative();
+                    String content = msg.getContent();
                     System.out.println("message is of performative " + performative);
-                    if (performative == ACLMessage.CONFIRM) {
-                        logged = true;
+                    switch (performative) {
+                        case ACLMessage.CONFIRM:
+                            logged = true;
+                            break;
+                        case ACLMessage.INFORM:
+                            String args[] = content.split(":");
+
+                            if (args[0].equals("Player")) {
+                                int receivedPlayer = Integer.parseInt(args[1]);
+                                int receivedTeam = Integer.parseInt(args[2]);
+                                int receivedX = Integer.parseInt(args[3]);
+                                int receivedY = Integer.parseInt(args[4]);
+
+                                if (receivedPlayer == playerId) {
+                                    System.out.println("Player " + receivedPlayer + " is at position (" + receivedX + "," + receivedY + ")");
+                                    x = receivedX;
+                                } else if (receivedTeam == team) {
+                                    System.out.println("Player " + receivedPlayer + " is on " + playerId + "'s team");
+                                    y = receivedY;
+                                } else {
+                                    System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
+                                }
+
+                            } else if (args[0].equals("Bomb")) {
+                                int receivedX = Integer.parseInt(args[1]);
+                                int receivedY = Integer.parseInt(args[2]);
+
+                                System.out.println(playerId + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+                            } else if (args[0].equals("Explosion")) {
+                                int receivedX = Integer.parseInt(args[1]);
+                                int receivedY = Integer.parseInt(args[2]);
+
+                                System.out.println(playerId + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
+                            }
+                            break;
+                        default:
+                            System.out.println("Unexpected type message " + performative + "" + content);
                     }
 
                     /* no message received. Send a message if I have not said my name */
-                } else if (!logged) {
+                }
+
+                if (!logged) {
                     msg = new ACLMessage(ACLMessage.SUBSCRIBE);
                     msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
                     msg.setLanguage("English");
