@@ -302,28 +302,36 @@ public class BomberPlayerAgent extends Agent {
                                 break;
                             }
                             */
-
+                            /* try to be too safe */
+                            boolean paranoid = true;
+                            do {
                             /* attempt move to another column */
-                            if (move(cur_pos.x + 1, cur_pos.y)) {
+                            if (move(cur_pos.x + 1, cur_pos.y, paranoid)) {
                                 System.out.println(player.playerNo + ": moved right");
-                                break;
+                                return;
                             }
 
-                            if (move(cur_pos.x - 1, cur_pos.y)) {
+                            if (move(cur_pos.x - 1, cur_pos.y, paranoid)) {
                                 System.out.println(player.playerNo + ": moved left");
-                                break;
+                                return;
                             }
 
                             /* move inside danger column, hoping to find an exit */
-                            if (move(cur_pos.x, cur_pos.y + 1)) {
+                            if (move(cur_pos.x, cur_pos.y + 1, paranoid)) {
                                 System.out.println(player.playerNo + ": moved down");
-                                break;
+                                return;
                             }
 
-                            if (move(cur_pos.x, cur_pos.y - 1)) {
+                            if (move(cur_pos.x, cur_pos.y - 1, paranoid)) {
                                 System.out.println(player.playerNo + ": moved up");
-                                break;
+                                return;
                             }
+                            /* cannot escape safely... forget paranoia and be brave */
+                            if (paranoid)
+                                paranoid = false;
+                            else
+                                paranoid = true;
+                            } while (!paranoid);
 
                             /* TODO: will need to protect myself from going back to danger */
                             return;
@@ -346,27 +354,36 @@ public class BomberPlayerAgent extends Agent {
                                 break;
                             }
 */
+                            /* try to be too safe */
+                            boolean paranoid = true;
+                            do {
                             /* attempt move to another column */
-                            if (move(cur_pos.x, cur_pos.y + 1)) {
+                            if (move(cur_pos.x, cur_pos.y + 1, paranoid)) {
                                 System.out.println(player.playerNo + ": moved down");
                                 break;
                             }
 
-                            if (move(cur_pos.x, cur_pos.y - 1)) {
+                            if (move(cur_pos.x, cur_pos.y - 1, paranoid)) {
                                 System.out.println(player.playerNo + ": moved up");
                                 break;
                             }
                             /* TODO: will need to protect myself from going back to danger */
                             /* move into danger column, hoping to find an exit */
-                            if (move(cur_pos.x + 1, cur_pos.y)) {
+                            if (move(cur_pos.x + 1, cur_pos.y, paranoid)) {
                                 System.out.println(player.playerNo + ": moved right");
                                 break;
                             }
 
-                            if (move(cur_pos.x - 1, cur_pos.y)) {
+                            if (move(cur_pos.x - 1, cur_pos.y, paranoid)) {
                                 System.out.println(player.playerNo + ": moved left");
                                 break;
                             }
+                            /* cannot escape safely... forget paranoia and be brave */
+                            if (paranoid)
+                                paranoid = false;
+                            else
+                                paranoid = true;
+                            } while (!paranoid);
                         }
                     }
                     return;
@@ -407,12 +424,12 @@ public class BomberPlayerAgent extends Agent {
                      * for now first through x then through y */
                    // do {
                     int x_dir = (cur_pos.x - player.enemies.get(closer_index).x) < 0 ? 1 : -1;
-                    if (move(cur_pos.x + x_dir, cur_pos.y)) {
+                    if (move(cur_pos.x + x_dir, cur_pos.y, true)) {
                         return;
                     }
 
                     int y_dir = (cur_pos.y - player.enemies.get(closer_index).y) < 0 ? 1 : -1;
-                    if (move(cur_pos.x, cur_pos.y + y_dir)) {
+                    if (move(cur_pos.x, cur_pos.y + y_dir, true)) {
                             return;
                     }
                 }
@@ -450,7 +467,7 @@ public class BomberPlayerAgent extends Agent {
     }
 
     /* is it possible or safe to move to a particular position? */
-    private boolean canMove(int x, int y) {
+    private boolean canMove(int x, int y, boolean paranoid) {
 
         System.out.println(player.playerNo + ": Evaluate moving to " + x + ":" + y);
         if (MoveValidator.hasElement(player.map, BomberMap.BRICK, x, y)) {
@@ -462,28 +479,37 @@ public class BomberPlayerAgent extends Agent {
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_BRICK, x, y)) {
             System.out.println(player.playerNo + ": Rejected because FIRE_BRICK");
             return false;
-            /*
-        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_CENTER, x, y)) {
-            System.out.println(player.playerNo + ": Rejected because FIRE_CENTER");
-            return false;
-        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_EAST, x, y)) {
-            System.out.println(player.playerNo + ": Rejected because FIRE_EAST");
-            return false;
-        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_WEST, x, y)) {
-            System.out.println(player.playerNo + ": Rejected because FIRE_WEST");
-            return false;
-        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_NORTH, x, y)) {
-            System.out.println(player.playerNo + ": Rejected because FIRE_NORTH");
-            return false;
-        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_SOUTH, x, y)) {
-            System.out.println(player.playerNo + ": Rejected because FIRE_SOUTH");
-            return false;
-            */
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_HORIZONTAL, x, y)) {
             System.out.println(player.playerNo + ": Rejected because FIRE_HORIZONTAL");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_VERTICAL, x, y)) {
             System.out.println(player.playerNo + ": Rejected because FIRE_VERTICAL");
+            return false;
+        /* from here on, ignore accessible but dangerous positions if the requester
+         * wants to be too safe */
+        } else if (MoveValidator.hasElement(player.map, BomberMap.BOMB, x, y)
+                && paranoid) {
+            System.out.println(player.playerNo + ": Rejected because BOMB");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_CENTER, x, y)
+                    && paranoid) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_CENTER");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_EAST, x, y)
+                    && paranoid) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_EAST");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_WEST, x, y)
+                    && paranoid) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_WEST");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_NORTH, x, y)
+                    && paranoid) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_NORTH");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_SOUTH, x, y)
+                    && paranoid) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_SOUTH");
             return false;
         }
         System.out.println(player.playerNo + ": Safe to move to " + x + ":" + y);
@@ -493,12 +519,12 @@ public class BomberPlayerAgent extends Agent {
     /* Attempt to move to specified position.
      * Return true if move was allowed
      */
-    private boolean move(int x, int y) {
+    private boolean move(int x, int y, boolean paranoid) {
 
         int move = -1;
 
         move = MoveValidator.nextMove(cur_pos.x, cur_pos.y, x, y);
-        if (move != -1 && canMove(x, y)) {
+        if (move != -1 && canMove(x, y, paranoid)) {
             moveRequest(move);
             return true;
         }
@@ -538,7 +564,7 @@ public class BomberPlayerAgent extends Agent {
             }
             cur_pos.x = (player.x >> BomberMain.shiftCount);
             cur_pos.y = (player.y >> BomberMain.shiftCount);
-            System.out.println(player.playerNo + ": now at " + cur_pos.x + ":" + cur_pos.y);
+            System.out.println(player.playerNo + ": now at coordinates " + cur_pos.x + ":" + cur_pos.y);
 
             if (origPos.x == cur_pos.x && origPos.y == origPos.y
                     && move != BomberPlayer.BOMB) {
