@@ -91,12 +91,11 @@ public class BomberPlayerAgent extends Agent {
                                      * blow it up!
                                      */
                                     /*
-                                    if (player.samePlace) {
+                                    //if (player.samePlace) {
                                         if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
                                               moveRequest(BomberPlayer.BOMB);
-                                    }
+                                    //}
                                     */
-
                                     player.prev_pos.x = new_pos.x;
                                     player.prev_pos.y = new_pos.y;
                                 /* Is an enemy position what I've received? */

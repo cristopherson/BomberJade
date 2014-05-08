@@ -138,7 +138,11 @@ public class BomberMain extends Agent {
                                 if (game != null) {
                                     game.keyPressed(event);
                                     try {
-                                        Thread.sleep(150);
+                                        if (move == BomberPlayer.BOMB) {
+                                            Thread.sleep(5);
+                                        } else {
+                                            Thread.sleep(150);
+                                        }
                                     } catch (InterruptedException ex) {
                                         Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
                                     }

@@ -1425,7 +1425,7 @@ public class BomberPlayer extends Thread {
     }
 
     public void createBomberPlayerAgent() {
-        createBomberAgent("192.168.0.13", "1099", "Bomber" + playerNo);
+        createBomberAgent("localhost", "1099", "Bomber" + playerNo);
     }
 
     public void sendPosition() {
