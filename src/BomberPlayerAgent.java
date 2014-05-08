@@ -184,6 +184,8 @@ public class BomberPlayerAgent extends Agent {
                         myAgent.removeBehaviour(this);
                         System.out.println("Confirmation received");
                         logged = true;
+                        cur_pos.x = (player.x >> BomberMain.shiftCount);
+                        cur_pos.y = (player.y >> BomberMain.shiftCount);
                     } catch (ReceiverBehaviour.TimedOut ex) {
 
                     } catch (ReceiverBehaviour.NotYetReady ex) {
@@ -534,8 +536,8 @@ public class BomberPlayerAgent extends Agent {
                 }
                 player.game.keyReleased(event);
             }
-            cur_pos.x = (player.x / 15);
-            cur_pos.y = (player.y / 15);
+            cur_pos.x = (player.x >> BomberMain.shiftCount);
+            cur_pos.y = (player.y >> BomberMain.shiftCount);
             System.out.println(player.playerNo + ": now at " + cur_pos.x + ":" + cur_pos.y);
 
             if (origPos.x == cur_pos.x && origPos.y == origPos.y

@@ -60,13 +60,65 @@ public class MoveValidator {
             return false;
         }
 
-        if(type == BomberMap.WARNING)
+        if (type == BomberMap.WARNING) {
+            System.out.println("WArning");
             return map.warningGrid[x][y];
+        }
 
         if (map.grid[x][y] == type) {
             return true;
         }
         return false;
+    }
+
+    public static boolean hasSafeMove(BomberMap map, int x, int y) {
+        if (x < 1 || x > 15 || y < 1 || y > 15) {
+            return false;
+        }
+
+        if (canSafeMove(map, x + 1, y)) {
+            return true;
+        }
+
+        if (canSafeMove(map, x - 1, y)) {
+            return true;
+        }
+        if (canSafeMove(map, x, y + 1)) {
+            return true;
+        }
+
+        if (canSafeMove(map, x, y - 1)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static int nextSafeMove(BomberMap map, int x, int y) {
+        if (x < 1 || x > 15 || y < 1 || y > 15) {
+            return -1;
+        }
+
+        if (map.grid[x + 1][y] <= BomberMap.NOTHING) {
+            return BomberPlayer.RIGHT;
+        }
+        if (map.grid[x - 1][y] <= BomberMap.NOTHING) {
+            return BomberPlayer.LEFT;
+        }
+        if (map.grid[x][y - 1] <= BomberMap.NOTHING) {
+            return BomberPlayer.UP;
+        }
+        if (map.grid[x][y + 1] <= BomberMap.NOTHING) {
+            return BomberPlayer.DOWN;
+        }
+        return -1;
+    }
+
+    public static boolean canSafeMove(BomberMap map, int x, int y) {
+        if (x < 1 || x > 15 || y < 1 || y > 15) {
+            return false;
+        }
+
+        return (map.grid[x][y] <= BomberMap.NOTHING);
     }
 
     public static int nextMove(BomberMap map, int type, int x, int y) {
