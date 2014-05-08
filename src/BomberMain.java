@@ -2,8 +2,10 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.ReceiverBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -65,6 +67,7 @@ public class BomberMain extends Agent {
      * this is the size of each square in the game
      */
     public static final int size = 1 << shiftCount;
+    ReceiverBehaviour subscribeBehavior = new ReceiverBehaviour(this, 100, MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE));
 
     static {
         sndEffectPlayer = new BomberSndEffect();
@@ -80,63 +83,67 @@ public class BomberMain extends Agent {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
 
+        addBehaviour(subscribeBehavior);
+        addBehaviour(new CyclicBehaviour(this) {
+
+            @Override
+            public void action() {
+                ACLMessage msg = null;
+
+                if (subscribeBehavior.done()) {
+                    try {
+                        msg = subscribeBehavior.getMessage();
+                    } catch (ReceiverBehaviour.TimedOut ex) {
+                    } catch (ReceiverBehaviour.NotYetReady ex) {
+                    } finally {
+                        if (index < subscribers.length) {
+                            myAgent.addBehaviour(subscribeBehavior);
+                        } else {
+                            myAgent.removeBehaviour(this);
+                        }
+                    }
+                }
+
+                if (msg != null) {
+                    String content = msg.getContent();
+                    String agent = msg.getSender().getLocalName();
+
+                    System.out.println(getAID().getLocalName() + " got subscription request");
+                    System.out.println(agent + " says " + content);
+
+                    if (index < subscribers.length) {
+                        subscribers[index] = agent;
+                        index++;
+                    }
+                    /* send response message */
+                    msg = new ACLMessage(ACLMessage.CONFIRM);
+                    /* content is already set to the name of the agent who sent the original */
+                    msg.addReceiver(new AID(agent, AID.ISLOCALNAME));
+                    msg.setLanguage("English");
+                    /* The ontology determines the elements that agents can use within the content of the message.
+                     * It defines a vocabulary and relationships between the elements in such a vocabulary. Said relationships
+                     * can be structural or semantic
+                     */
+                    msg.setOntology("Weather-forecast-ontology");
+                    msg.setContent("Hi " + agent + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
+                    send(msg);
+
+                }
+
+            }
+
+        });
+
         addBehaviour(new TickerBehaviour(this, 100) {
             public void onTick() {
                 // perform operation Y
 
-                ACLMessage msg = receive();
-                if (msg != null) {
-                    // Process the message
-                    int performative = msg.getPerformative();
-                    String content = msg.getContent();
-                    String agent = msg.getSender().getLocalName();
-
-                    switch (performative) {
-                        case ACLMessage.SUBSCRIBE:
-                            boolean subscribeAgent = true;
-
-                           for(int i = 0; i < index && subscribeAgent; i++) {
-                                if(subscribers[i].equals(agent))
-                                    subscribeAgent = false;
-                            }
-
-                           if(!subscribeAgent)
-                               break;
-
-                            System.out.println(getAID().getLocalName() + " got subscription request");
-                            System.out.println(agent + " says " + content);
-
-                            if (index < subscribers.length) {
-                                subscribers[index] = agent;
-                                index++;
-                            }
-                            /* send response message */
-                            msg = new ACLMessage(ACLMessage.CONFIRM);
-                            /* content is already set to the name of the agent who sent the original */
-                            msg.addReceiver(new AID(agent, AID.ISLOCALNAME));
-                            msg.setLanguage("English");
-                            /* The ontology determines the elements that agents can use within the content of the message.
-                             * It defines a vocabulary and relationships between the elements in such a vocabulary. Said relationships
-                             * can be structural or semantic
-                             */
-                            msg.setOntology("Weather-forecast-ontology");
-                            msg.setContent("Hi " + agent + "\nI am " + getAID().getLocalName() + "\nWelcome to the game");
-                            send(msg);
-
-                            game.players[index -1].sendPosition();
-                            return;
-                    }
-                } /* else I did not receive any message... but I may want to act on my own */
-
                 /* If there's no message, players may need to get each other's positions,
                  * so send them */
-                if (positionsSent == false) {
-                    System.out.println(" Player position needs to be sent.");
                     for (int i = 0; i < 4; i++) {
                         BomberGame.players[i].sendPosition();
                     }
-                    positionsSent = true;
-                }
+
             }
         });
 
