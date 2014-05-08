@@ -110,11 +110,20 @@ public class BomberMain extends Agent {
                     String agent = msg.getSender().getLocalName();
 
                     System.out.println(getAID().getLocalName() + " got subscription request");
-                    System.out.println(agent + " says " + content);
+                    System.out.println("SUBSCRIPTION: " + agent + " says " + content);
+
+                    for (int i = 0; i < index; i++) {
+                        System.out.println("Evaluating" + subscribers[i] + " and " + agent);
+                        if (subscribers[i].equals(agent)) {
+                            System.out.println("ignoring duplicate subscription for agent " + agent);
+                            return;
+                        }
+                    }
 
                     if (index < subscribers.length) {
                         subscribers[index] = agent;
                         index++;
+                        System.out.println("Agent "+ agent + "subscribed");
                     }
                     /* send response message */
                     msg = new ACLMessage(ACLMessage.CONFIRM);
@@ -130,23 +139,21 @@ public class BomberMain extends Agent {
                     send(msg);
 
                 }
-
             }
-
         });
 
-        addBehaviour(new TickerBehaviour(this, 100) {
+        /*
+        addBehaviour(new TickerBehaviour(this, 5000) {
             public void onTick() {
                 // perform operation Y
 
-                /* If there's no message, players may need to get each other's positions,
-                 * so send them */
                 for (int i = 0; i < 4; i++) {
                     BomberGame.players[i].sendPosition();
                 }
 
             }
         });
+        */
 
         mainFramework = new JFrame();
         /**
