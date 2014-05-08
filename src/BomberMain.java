@@ -74,8 +74,8 @@ public class BomberMain extends Agent {
     }
 
     /* flag to send positions only once */
-
     boolean positionsSent = false;
+
     /**
      * Constructs the main frame.
      */
@@ -141,9 +141,9 @@ public class BomberMain extends Agent {
 
                 /* If there's no message, players may need to get each other's positions,
                  * so send them */
-                    for (int i = 0; i < 4; i++) {
-                        BomberGame.players[i].sendPosition();
-                    }
+                for (int i = 0; i < 4; i++) {
+                    BomberGame.players[i].sendPosition();
+                }
 
             }
         });
@@ -311,14 +311,21 @@ public class BomberMain extends Agent {
      * Send a notification message to agents
      */
     public void sendMessage(String message) {
+        sendGeneralMessage(message, ACLMessage.INFORM);
+    }
+
+    public void sendCancelMessage(String message) {
+        sendGeneralMessage(message, ACLMessage.CANCEL);
+    }
+
+    public void sendGeneralMessage(String message, int type) {
         System.out.println("Sending message" + message);
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        ACLMessage msg = new ACLMessage(type);
         msg.setLanguage("English");
         msg.setOntology("Weather-forecast-ontology");
         msg.setContent(message);
         /* Iterate over the list of subscribed agents */
         for (int i = 0; i < BomberMain.index; i++) {
-            System.out.println("KIDDO subscribers" + BomberMain.subscribers[i]);
             msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
         }
         send(msg);

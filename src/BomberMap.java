@@ -493,7 +493,7 @@ public class BomberMap extends JPanel {
                 = new BomberBomb(this, _x, _y, owner);
         bombs.addElement(new Bomb(_x, _y));
         String message = "Bomb:" + (_x >> BomberMain.shiftCount) + ":" + (_y >> BomberMain.shiftCount);
-        main.sendMessage(message);
+        main.sendCancelMessage(message);
     }
 
     /**
@@ -517,7 +517,7 @@ public class BomberMap extends JPanel {
             k = bombs.size();
         }
         String message = "Explosion:" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
-        main.sendMessage(message);
+        main.sendCancelMessage(message);
     }
 
     /**

@@ -31,6 +31,7 @@ public class BomberPlayerAgent extends Agent {
     private BomberPlayer player;
     private ReceiverBehaviour confirmBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.CONFIRM));
     private ReceiverBehaviour informBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+    private ReceiverBehaviour cancelBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.CANCEL));
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -80,6 +81,43 @@ public class BomberPlayerAgent extends Agent {
                         if (!logged) {
                             myAgent.addBehaviour(confirmBehavior);
                         }
+                    }
+                }
+
+            }
+
+        });
+
+        this.addBehaviour(cancelBehavior);
+        this.addBehaviour(new TickerBehaviour(this, 100) {
+            protected void onTick() {
+                ACLMessage msg = null;
+
+                if (cancelBehavior.done()) {
+                    try {
+                        msg = cancelBehavior.getMessage();
+
+                        String content = msg.getContent();
+                        //System.out.println("message is of performative " + performative);
+                        String args[] = content.split(":");
+                        cancelBehavior.reset();
+
+                        int receivedX = Integer.parseInt(args[1]);
+                        int receivedY = Integer.parseInt(args[2]);
+
+                        GridCoordinates current = new GridCoordinates();
+                        current.x = receivedX;
+                        current.y = receivedY;
+
+                        player.bombs.add(current);
+
+                        System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+                    } catch (ReceiverBehaviour.TimedOut ex) {
+
+                    } catch (ReceiverBehaviour.NotYetReady ex) {
+
+                    } finally {
+                        myAgent.addBehaviour(cancelBehavior);
                     }
                 }
 
@@ -213,17 +251,17 @@ public class BomberPlayerAgent extends Agent {
                         }
 
                     } else if (args[0].equals("Bomb")) {
-                        int receivedX = Integer.parseInt(args[1]);
-                        int receivedY = Integer.parseInt(args[2]);
+                        /*                        int receivedX = Integer.parseInt(args[1]);
+                         int receivedY = Integer.parseInt(args[2]);
 
-                        GridCoordinates current = new GridCoordinates();
-                        current.x = receivedX;
-                        current.y = receivedY;
+                         GridCoordinates current = new GridCoordinates();
+                         current.x = receivedX;
+                         current.y = receivedY;
 
-                        player.bombs.add(current);
+                         player.bombs.add(current);
 
-                        System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
-
+                         System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+                         */
                     } else if (args[0].equals("Explosion")) {
                         int receivedX = Integer.parseInt(args[1]);
                         int receivedY = Integer.parseInt(args[2]);
@@ -255,6 +293,7 @@ public class BomberPlayerAgent extends Agent {
 
                 /* Look for bombs */
                 if (player.bombs.size() > 0) {
+                    System.out.println("Bomber" + player.playerNo + " has bomb issues");
                     /* player in same row as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
                         if (player.bombs.get(i).x == player.prev_pos.x) {
