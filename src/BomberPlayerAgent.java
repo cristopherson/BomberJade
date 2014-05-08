@@ -284,15 +284,23 @@ public class BomberPlayerAgent extends Agent {
 
                 /* Look for bombs */
                 if (player.bombs.size() > 0) {
-                    System.out.println("Bomber" + player.playerNo + " has bomb issues");
+                    System.out.println("KIDDO Bomber" + player.playerNo + " has bomb issues");
                     /* player in same row as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
-                        if (player.bombs.get(i).x == player.prev_pos.x) {
+                        if (player.bombs.get(i).x == cur_pos.x) {
                             /* attempt move to another row */
+                            System.out.println("KIDDO Bomber" + player.playerNo + " should run for his life");
+
                             do {
+                                move = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
+                                System.out.println("KIDDO Bomber"+player.playerNo +" should move from (" + cur_pos.x + "," + cur_pos.y +") = " + move);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    return;
+                                }
                                 /* TODO: will need to protect myself from going back to danger */
                                 move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
-                                        player.prev_pos.x + 1, player.prev_pos.y);
+                                        cur_pos.x + 1, cur_pos.y);
                                 if (move != -1) {
                                     moveRequest(move);
                                     return;
@@ -391,7 +399,7 @@ public class BomberPlayerAgent extends Agent {
                 }
                 /* nothing to act upon. Move randomly */
                 Random rand = new Random();
-                System.out.println(player.playerNo + ": Making a random move");
+                System.out.println("KIDDO Bomber"+player.playerNo + ": Making a random move");
                 moveRequest(rand.nextInt(4));
                 return;
             }

@@ -54,4 +54,23 @@ public class MoveValidator {
         }
         return false;
     }
+
+    public static int nextMove(BomberMap map, int type, int x, int y) {
+        if (x < 1 || x > 15 || y < 1 || y > 15) {
+            return -1;
+        }
+        if (map.grid[x + 1][y] == type) {
+            return BomberPlayer.RIGHT;
+        }
+        if (map.grid[x - 1][y] == type) {
+            return BomberPlayer.LEFT;
+        }
+        if (map.grid[x][y - 1] == type) {
+            return BomberPlayer.UP;
+        }
+        if (map.grid[x][y + 1] == type) {
+            return BomberPlayer.DOWN;
+        }
+        return BomberPlayer.BOMB;
+    }
 }
