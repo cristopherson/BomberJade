@@ -110,8 +110,6 @@ public class BomberPlayerAgent extends Agent {
                                 // Is an enemy position what I've received?
                             } else  */
                             if(receivedTeam != player.team) {
-                                System.out.println(player.playerNo + ":  player's enemy " + receivedPlayer + "detected at position (" + receivedX + "," + receivedY + ")");
-
                                 if (BomberGame.players[receivedPlayer - 1].isDead()) {
                                     System.out.println("Ignoring report for Dead: player " + receivedPlayer);
                                     return;
@@ -210,7 +208,6 @@ public class BomberPlayerAgent extends Agent {
                         msg = cancelBehavior.getMessage();
 
                         String content = msg.getContent();
-                        //System.out.println("message is of performative " + performative);
                         String args[] = content.split(":");
                         cancelBehavior.reset();
 
@@ -231,7 +228,6 @@ public class BomberPlayerAgent extends Agent {
                             }
                         }
 
-                        System.out.println(player.playerNo + " player's detected a(n) " + args[0] + " at position (" + receivedX + "," + receivedY + ")");
                     } catch (ReceiverBehaviour.TimedOut ex) {
 
                     } catch (ReceiverBehaviour.NotYetReady ex) {
@@ -254,6 +250,8 @@ public class BomberPlayerAgent extends Agent {
                 cur_pos.x = (player.x / 15);
                 cur_pos.y = (player.y / 15);
 
+                System.out.println(player.playerNo + ": currently at " + cur_pos.x + ":" + cur_pos.y);
+
                 if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
                     moveRequest(BomberPlayer.BOMB);
                 }
@@ -275,7 +273,6 @@ public class BomberPlayerAgent extends Agent {
 
                 /* message has been received */
                 if (msg != null) {
-                    System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     String content = msg.getContent();
                     String args[] = content.split(":");
                 }
@@ -287,49 +284,56 @@ public class BomberPlayerAgent extends Agent {
 
                 /* Look for bombs */
                 if (player.bombs.size() > 0) {
-                    System.out.println("KIDDO Bomber" + player.playerNo + " has bomb issues");
+                    System.out.println(player.playerNo + ": Bombs present");
                     /* player in same row as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
                         if (player.bombs.get(i).x == cur_pos.x) {
+                            System.out.println(player.playerNo + ": in same row as bomb at " + cur_pos.x + ":" + cur_pos.y);
+
+
+                            move = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
+                            System.out.println(player.playerNo + ": must move away from (" + cur_pos.x + "," + cur_pos.y +") = " + move);
+                            if (move != -1) {
+                                moveRequest(move);
+                                break;
+                            }
+
                             /* attempt move to another row */
-                            System.out.println("KIDDO Bomber" + player.playerNo + " should run for his life");
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x + 1, cur_pos.y);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving right on x axis towards (" + (cur_pos.x + 1) + "," + cur_pos.y +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
 
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x - 1, cur_pos.y);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving left on x axis towards (" + (cur_pos.x - 1) + "," + cur_pos.y +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
 
-                                move = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
-                                System.out.println("KIDDO Bomber"+player.playerNo +" should move from (" + cur_pos.x + "," + cur_pos.y +") = " + move);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
+                            /* move inside danger row, hoping to find an exit */
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x, cur_pos.y + 1);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving up on y axis towards (" + cur_pos.x + "," + (cur_pos.y + 1) +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
 
-                                /* TODO: will need to protect myself from going back to danger */
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x + 1, cur_pos.y);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x, cur_pos.y - 1);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving down on y axis towards (" + cur_pos.x + "," + (cur_pos.y - 1) +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
 
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x - 1, cur_pos.y);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
-                                /* move into same line, hoping to find an exit */
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x, cur_pos.y + 1);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
-
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x, cur_pos.y - 1);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
+                            /* TODO: will need to protect myself from going back to danger */
+                            return;
                         }
                     }
 
@@ -342,36 +346,48 @@ public class BomberPlayerAgent extends Agent {
                     /* player in same column as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
                         if (player.bombs.get(i).y == cur_pos.y) {
+                            System.out.println(player.playerNo + ": in same column as bomb at " + cur_pos.x + ":" + cur_pos.y);
+/*
+                            move = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
+                            System.out.println(player.playerNo + ": must move away from (" + cur_pos.x + "," + cur_pos.y +") = " + move);
+                            if (move != -1) {
+                                moveRequest(move);
+                                break;
+                            }
+*/
                             /* attempt move to another column */
-                                /* TODO: will need to protect myself from going back to danger */
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x, cur_pos.y + 1);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x, cur_pos.y + 1);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving up on y axis towards (" + cur_pos.x + "," + (cur_pos.y + 1) +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
 
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x, cur_pos.y - 1);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x, cur_pos.y - 1);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving down on y axis towards (" + cur_pos.x + "," + (cur_pos.y - 1) +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
+                            /* TODO: will need to protect myself from going back to danger */
+                            /* move into danger column, hoping to find an exit */
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x + 1, cur_pos.y);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving right on x axis towards (" + (cur_pos.x + 1) + "," + cur_pos.y +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
 
-                                /* move into same line, hoping to find an exit */
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x + 1, cur_pos.y);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
-
-                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
-                                        cur_pos.x - 1, cur_pos.y);
-                                if (move != -1) {
-                                    moveRequest(move);
-                                    break;
-                                }
+                            move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                    cur_pos.x - 1, cur_pos.y);
+                            if (move != -1) {
+                                System.out.println(player.playerNo + ": moving left on x axis towards (" + (cur_pos.x - 1) + "," + cur_pos.y +") = " + move);
+                                moveRequest(move);
+                                break;
+                            }
                         }
                     }
                     return;
