@@ -55,6 +55,20 @@ public class MoveValidator {
         return false;
     }
 
+    public static boolean hasElement(BomberMap map, int type, int x, int y) {
+        if (x < 1 || x > 15 || y < 1 || y > 15) {
+            return false;
+        }
+
+        if(type == BomberMap.WARNING)
+            return map.warningGrid[x][y];
+
+        if (map.grid[x][y] == type) {
+            return true;
+        }
+        return false;
+    }
+
     public static int nextMove(BomberMap map, int type, int x, int y) {
         if (x < 1 || x > 15 || y < 1 || y > 15) {
             return -1;
@@ -101,14 +115,10 @@ public class MoveValidator {
             return BomberMap.WALL;
         }
 
-        if (map.grid[new_x][new_y] != BomberMap.NOTHING) {
+        if (map.grid[new_x][new_y] > BomberMap.NOTHING || !map.warningGrid[new_x][new_y]) {
             return map.grid[new_x][new_y];
         }
 
-        if (map.warningGrid[new_x][new_y]) {
-            return BomberMap.WARNING;
-        }
-
-        return BomberMap.NOTHING;
+        return BomberMap.WARNING;
     }
 }

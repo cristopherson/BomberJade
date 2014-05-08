@@ -499,12 +499,14 @@ public class BomberMap extends JPanel {
 
         int row = (_x >> BomberMain.shiftCount);
         int col = (_y >> BomberMain.shiftCount);
+        int length = BomberGame.players[owner].fireLength;
+        int offset = (length / 2);
 
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < length; j++) {
                 if (row > 0 && row < 16 && col > 0 && col < 16) {
-                    if (((row - 2) >= 0) && ((col - 2) >= 0)) {
-                        warningGrid[row - 2 + i][col - 2 + j] = true;
+                    if (((row - offset) >= 0) && ((col - offset) >= 0)) {
+                        warningGrid[row - offset + i][col - offset + j] = true;
                     }
                 }
             }
@@ -533,16 +535,6 @@ public class BomberMap extends JPanel {
             }
             i += 1;
             k = bombs.size();
-        }
-
-        for (i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (r > 0 && r < 16 && c > 0 && c < 16) {
-                    if (((r - 2) >= 0) && ((c - 2) >= 0)) {
-                        warningGrid[r - 2 + i][c - 2 + j] = true;
-                    }
-                }
-            }
         }
 
         String message = "Explosion:" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
@@ -817,6 +809,21 @@ public class BomberMap extends JPanel {
                  */
                 else {
                     createFire(_x - (i * size), _y, owner, FIRE_HORIZONTAL);
+                }
+            }
+
+            int row = (_x >> BomberMain.shiftCount);
+            int col = (_y >> BomberMain.shiftCount);
+            int length = BomberGame.players[owner].fireLength;
+            int offset = (length / 2);
+
+            for (int i = 0; i < length; i++) {
+                for (int j = 0; j < length; j++) {
+                    if (row > 0 && row < 16 && col > 0 && col < 16) {
+                        if (((row - offset) >= 0) && ((col - offset) >= 0)) {
+                            warningGrid[row - offset + i][col - offset + j] = false;
+                        }
+                    }
                 }
             }
         }
