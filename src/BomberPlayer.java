@@ -100,11 +100,6 @@ public class BomberPlayer extends Thread {
     public int y = 0;
 
     /**
-     * Previous player position
-     */
-    public int prev_x = -1;
-    public int prev_y = -1;
-    /**
      * player's number
      */
     public int playerNo = 0;
@@ -146,21 +141,11 @@ public class BomberPlayer extends Thread {
     BomberMain mainAgent = null;
 
     /**
-     * Coordinates for my previous position
-     */
-    GridCoordinates prev_pos = new GridCoordinates();
-
-    /**
-     * Flag to determine whether I am attempting to move
-     */
-    public boolean samePlace = false;
-
-    /**
      * Databases for enemies and bombs...
      */
     /* TODO: these may work if static... */
-    public LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
-    public LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
+    public volatile LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
+    public volatile LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
     /**
      * byte enumerations
      */
@@ -192,7 +177,6 @@ public class BomberPlayer extends Thread {
      */
     private static Object hints = null;
 
-    private boolean notifyStaticPosition = false;
 
     static {
         /**

@@ -32,7 +32,7 @@ public class BomberPlayerAgent extends Agent {
     private ReceiverBehaviour cancelBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.CANCEL));
     private ReceiverBehaviour proposeBehaviour = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.PROPOSE));
 
-    public GridCoordinates cur_pos = new GridCoordinates();
+    public volatile GridCoordinates cur_pos = new GridCoordinates();
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -273,7 +273,6 @@ public class BomberPlayerAgent extends Agent {
                 System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
                         + player.enemies.size() + " enemies in sight");
 
-
                 /* I'm just going to leave this here */
                 if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
                     moveRequest(BomberPlayer.BOMB);
@@ -283,11 +282,15 @@ public class BomberPlayerAgent extends Agent {
                 if (player.bombs.size() > 0) {
                     System.out.println(player.playerNo + ": Bombs present");
                     /* player in same column as bomb? */
+                    /* only take into account nearby bombs...
+                     * may need to keep track of the actual fire power of each player.
+                     */
                     for (int i = 0; i < player.bombs.size(); i++) {
-                        if (player.bombs.get(i).x == cur_pos.x) {
+                        if (player.bombs.get(i).x == cur_pos.x &&
+                                Math.abs(player.bombs.get(i).y - cur_pos.y) < player.fireLength) {
                             System.out.println(player.playerNo + ": in same column as bomb at " + player.bombs.get(i).x + ":" + player.bombs.get(i).y);
 
-/*
+                            /*
                             int nextMove = -1;
 
                             nextMove = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
@@ -296,7 +299,8 @@ public class BomberPlayerAgent extends Agent {
                                 moveRequest(nextMove);
                                 break;
                             }
-*/
+                            */
+
                             /* attempt move to another column */
                             if (move(cur_pos.x + 1, cur_pos.y)) {
                                 System.out.println(player.playerNo + ": moved right");
@@ -324,15 +328,13 @@ public class BomberPlayerAgent extends Agent {
                         }
                     }
 
-
-                    /* TODO: I'm attempting to save time by sending consecutive requests...
-                     * but the validation is wrong because I have not yet moved.
-                     * Because of this, I am adding returns after row and column checks... but
-                     * I believe that could be optimized.
-                     */
                     /* player in same row as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
-                        if (player.bombs.get(i).y == cur_pos.y) {
+                        /* only take into account nearby bombs...
+                         * may need to keep track of the actual fire power of each player.
+                         */
+                        if (player.bombs.get(i).y == cur_pos.y &&
+                                Math.abs(player.bombs.get(i).x - cur_pos.x) < player.fireLength) {
                             System.out.println(player.playerNo + ": in same row as bomb at " + player.bombs.get(i).x + ":" + player.bombs.get(i).y);
 /*
                             nextMove = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
@@ -512,6 +514,9 @@ public class BomberPlayerAgent extends Agent {
                             System.currentTimeMillis(), 0, BomberKeyConfig.keys[player.playerNo - 1][move],
                             KeyEvent.CHAR_UNDEFINED);
 
+            GridCoordinates origPos = new GridCoordinates();
+            origPos.x = cur_pos.x;
+            origPos.y = cur_pos.y;
             //System.out.println("Moving " + agent + " to " + move);
             if (player.game != null) {
                 player.game.keyPressed(event);
@@ -532,6 +537,11 @@ public class BomberPlayerAgent extends Agent {
             cur_pos.x = (player.x / 15);
             cur_pos.y = (player.y / 15);
             System.out.println(player.playerNo + ": now at " + cur_pos.x + ":" + cur_pos.y);
+
+            if (origPos.x == cur_pos.x && origPos.y == origPos.y
+                    && move != BomberPlayer.BOMB) {
+                System.out.println("Moving had no effect!");
+            }
         }
     }
 }
