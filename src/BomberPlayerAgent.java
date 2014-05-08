@@ -294,28 +294,42 @@ public class BomberPlayerAgent extends Agent {
                             /* attempt move to another row */
                             System.out.println("KIDDO Bomber" + player.playerNo + " should run for his life");
 
-                            do {
+
                                 move = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
                                 System.out.println("KIDDO Bomber"+player.playerNo +" should move from (" + cur_pos.x + "," + cur_pos.y +") = " + move);
                                 if (move != -1) {
                                     moveRequest(move);
-                                    return;
+                                    break;
                                 }
+
                                 /* TODO: will need to protect myself from going back to danger */
-                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
                                         cur_pos.x + 1, cur_pos.y);
                                 if (move != -1) {
                                     moveRequest(move);
-                                    return;
+                                    break;
                                 }
 
-                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
-                                        player.prev_pos.x - 1, player.prev_pos.y);
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x - 1, cur_pos.y);
                                 if (move != -1) {
                                     moveRequest(move);
-                                    return;
+                                    break;
                                 }
-                            } while (false);
+                                /* move into same line, hoping to find an exit */
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x, cur_pos.y + 1);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    break;
+                                }
+
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x, cur_pos.y - 1);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    break;
+                                }
                         }
                     }
 
@@ -327,33 +341,47 @@ public class BomberPlayerAgent extends Agent {
                      */
                     /* player in same column as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
-                        if (player.bombs.get(i).y == player.prev_pos.y) {
+                        if (player.bombs.get(i).y == cur_pos.y) {
                             /* attempt move to another column */
-                            do {
                                 /* TODO: will need to protect myself from going back to danger */
-                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
-                                        player.prev_pos.x, player.prev_pos.y + 1);
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x, cur_pos.y + 1);
                                 if (move != -1) {
                                     moveRequest(move);
-                                    return;
+                                    break;
                                 }
 
-                                move = MoveValidator.nextMove(player.prev_pos.x, player.prev_pos.y,
-                                        player.prev_pos.x, player.prev_pos.y - 1);
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x, cur_pos.y - 1);
                                 if (move != -1) {
                                     moveRequest(move);
-                                    return;
+                                    break;
                                 }
-                            } while (false);
+
+                                /* move into same line, hoping to find an exit */
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x + 1, cur_pos.y);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    break;
+                                }
+
+                                move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
+                                        cur_pos.x - 1, cur_pos.y);
+                                if (move != -1) {
+                                    moveRequest(move);
+                                    break;
+                                }
                         }
                     }
+                    return;
                     //moveRequest(move);
                 } else {
                     System.out.println(player.playerNo + ": No bombs in range");
                 }
 
-                /* Look for enemies */
-                if (player.enemies.size() > 0) {
+                /* Look for enemies, but only if there are no bombs to run from */
+                if (player.enemies.size() > 0 && player.bombs.size() == 0) {
                     /* look for closer enemy */
                     int closer_index = -1;
                     /* no player can be this far */
@@ -400,11 +428,13 @@ public class BomberPlayerAgent extends Agent {
                         }
                     } while (false);
                 }
-                /* nothing to act upon. Move randomly */
-                Random rand = new Random();
-                System.out.println("KIDDO Bomber"+player.playerNo + ": Making a random move");
-                moveRequest(rand.nextInt(4));
-                return;
+                /* nothing to act upon. Move randomly, but only if there are no bombs in the way */
+                if (player.bombs.size() == 0) {
+                    Random rand = new Random();
+                    System.out.println("KIDDO Bomber"+player.playerNo + ": Making a random move");
+                    moveRequest(rand.nextInt(4));
+                    return;
+                }
             }
         }
         );
@@ -429,7 +459,10 @@ public class BomberPlayerAgent extends Agent {
                     if (move == BomberPlayer.BOMB) {
                         Thread.sleep(50);
                     } else {
-                        Thread.sleep(150);
+                        /* pretty good approximation to moving
+                         * exactly one square.
+                         */
+                        Thread.sleep(300);
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
