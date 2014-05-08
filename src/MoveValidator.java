@@ -71,6 +71,44 @@ public class MoveValidator {
         if (map.grid[x][y + 1] == type) {
             return BomberPlayer.DOWN;
         }
-        return BomberPlayer.BOMB;
+        return -1;
+    }
+
+    public static boolean isWarning(BomberMap map, int x, int y) {
+        return map.warningGrid[x][y];
+    }
+
+    public static int getContent(BomberMap map, int move, int x, int y) {
+        int new_x = x;
+        int new_y = y;
+
+        switch (move) {
+            case BomberPlayer.UP:
+                new_y -= 1;
+                break;
+            case BomberPlayer.DOWN:
+                new_y += 1;
+                break;
+            case BomberPlayer.LEFT:
+                new_x -= 1;
+                break;
+            case BomberPlayer.RIGHT:
+                new_x += 1;
+                break;
+        }
+
+        if (new_x < 1 || new_x > 15 || new_y < 1 || new_y > 15) {
+            return BomberMap.WALL;
+        }
+
+        if (map.grid[new_x][new_y] != BomberMap.NOTHING) {
+            return map.grid[new_x][new_y];
+        }
+
+        if (map.warningGrid[new_x][new_y]) {
+            return BomberMap.WARNING;
+        }
+
+        return BomberMap.NOTHING;
     }
 }

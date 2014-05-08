@@ -48,6 +48,11 @@ public class BomberMap extends JPanel {
      */
     public BomberBonus[][] bonusGrid = null;
     /**
+     * warnings
+     */
+    public boolean[][] warningGrid = null;
+    /**
+     * /**
      * bombs
      */
     private Vector bombs = null;
@@ -81,7 +86,6 @@ public class BomberMap extends JPanel {
         public int r = 0;
         public int c = 0;
     }
-
     /**
      * image handles for the map images
      */
@@ -122,6 +126,7 @@ public class BomberMap extends JPanel {
     public static final int WALL = 0;
     public static final int BRICK = 1;
     public static final int BOMB = 3;
+    public static final int WARNING = 4;
     /**
      * random level generator
      */
@@ -347,6 +352,10 @@ public class BomberMap extends JPanel {
          */
         fireGrid = new boolean[17][17];
         /**
+         * create the warning grid
+         */
+        warningGrid = new boolean[17][17];
+        /**
          * create the bomb grid
          */
         bombGrid = new BomberBomb[17][17];
@@ -395,10 +404,7 @@ public class BomberMap extends JPanel {
         /**
          * clear corners so players can stand there
          */
-        grid[ 1][ 1] = grid[ 2][ 1] = grid[ 1][ 2]
-                = grid[ 1][15] = grid[ 2][15] = grid[ 1][14]
-                = grid[15][ 1] = grid[14][ 1] = grid[15][ 2]
-                = grid[15][15] = grid[15][14] = grid[14][15] = NOTHING;
+        grid[ 1][ 1] = grid[ 2][ 1] = grid[ 1][ 2] = grid[ 1][15] = grid[ 2][15] = grid[ 1][14] = grid[15][ 1] = grid[14][ 1] = grid[15][ 2] = grid[15][15] = grid[15][14] = grid[14][15] = NOTHING;
 
         /**
          * create background color
@@ -446,8 +452,7 @@ public class BomberMap extends JPanel {
          * create bonus : 0 = fire; 1 = bomb
          */
         if (type == 0 || type == 1) {
-            bonusGrid[_x >> BomberMain.shiftCount][_y >> BomberMain.shiftCount]
-                    = new BomberBonus(this, _x, _y, type);
+            bonusGrid[_x >> BomberMain.shiftCount][_y >> BomberMain.shiftCount] = new BomberBonus(this, _x, _y, type);
             bonuses.addElement(new Bonus(_x, _y));
         }
     }
@@ -489,9 +494,22 @@ public class BomberMap extends JPanel {
     public synchronized void createBomb(int x, int y, int owner) {
         int _x = (x >> BomberMain.shiftCount) << BomberMain.shiftCount;
         int _y = (y >> BomberMain.shiftCount) << BomberMain.shiftCount;
-        bombGrid[_x >> BomberMain.shiftCount][_y >> BomberMain.shiftCount]
-                = new BomberBomb(this, _x, _y, owner);
+        bombGrid[_x >> BomberMain.shiftCount][_y >> BomberMain.shiftCount] = new BomberBomb(this, _x, _y, owner);
         bombs.addElement(new Bomb(_x, _y));
+
+        int row = (_x >> BomberMain.shiftCount);
+        int col = (_y >> BomberMain.shiftCount);
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (row > 0 && row < 16 && col > 0 && col < 16) {
+                    if (((row - 2) >= 0) && ((col - 2) >= 0)) {
+                        warningGrid[row - 2 + i][col - 2 + j] = true;
+                    }
+                }
+            }
+        }
+
         String message = "Bomb:" + (_x >> BomberMain.shiftCount) + ":" + (_y >> BomberMain.shiftCount);
         main.sendCancelMessage(message);
     }
@@ -516,6 +534,17 @@ public class BomberMap extends JPanel {
             i += 1;
             k = bombs.size();
         }
+
+        for (i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (r > 0 && r < 16 && c > 0 && c < 16) {
+                    if (((r - 2) >= 0) && ((c - 2) >= 0)) {
+                        warningGrid[r - 2 + i][c - 2 + j] = true;
+                    }
+                }
+            }
+        }
+
         String message = "Explosion:" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
         main.sendCancelMessage(message);
     }
