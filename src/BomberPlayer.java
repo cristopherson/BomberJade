@@ -599,7 +599,7 @@ public class BomberPlayer extends Thread {
         if (!isDead && !isExploding) {
 
             String message = "Dead:" + this.playerNo + ":" + this.team;
-            mainAgent.sendMessage(message);
+            mainAgent.sendProposeMessage(message);
 
             /**
              * lower players left
@@ -1362,7 +1362,7 @@ public class BomberPlayer extends Thread {
                         int playerId = Integer.parseInt(names[0].replaceAll("Bomber", ""));
 
                         String message = "Player:" + playerId + ":" + this.team + ":" + new_x + ":" + new_y;
-                        mainAgent.sendMessage(message);
+                        mainAgent.sendProposeMessage(message);
                     }
                 } catch (StaleProxyException e) {
                     // TODO Auto-generated catch block
@@ -1419,7 +1419,7 @@ public class BomberPlayer extends Thread {
     }
 
     public void sendPosition() {
-        String message = "Player:" + playerNo + ":" + teamAssigner + ":" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
-        mainAgent.sendMessage(message);
+        String message = "Player:" + playerNo + ":" + team + ":" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
+        mainAgent.sendProposeMessage(message);
     }
 }

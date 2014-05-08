@@ -1,7 +1,6 @@
 
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +31,7 @@ public class BomberPlayerAgent extends Agent {
     private ReceiverBehaviour confirmBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.CONFIRM));
     private ReceiverBehaviour informBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.INFORM));
     private ReceiverBehaviour cancelBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.CANCEL));
+    private ReceiverBehaviour proposeBehaviour = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.PROPOSE));
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -56,8 +56,124 @@ public class BomberPlayerAgent extends Agent {
                 send(msg);
             }
         });
+
+        this.addBehaviour(proposeBehaviour);
+        this.addBehaviour(new TickerBehaviour(this, 100) {
+            protected void onTick() {
+                ACLMessage msg = null;
+
+                if (proposeBehaviour.done()) {
+                    try {
+                        msg = proposeBehaviour.getMessage();
+
+                        String content = msg.getContent();
+                        String args[] = content.split(":");
+                        proposeBehaviour.reset();
+
+                        int receivedPlayer = Integer.parseInt(args[1]);
+                        int receivedTeam = Integer.parseInt(args[2]);
+
+                        if (args[0].equals("Player")) {
+
+                            int receivedX = Integer.parseInt(args[3]);
+                            int receivedY = Integer.parseInt(args[4]);
+                            GridCoordinates new_pos = new GridCoordinates();
+
+                            new_pos.x = receivedX;
+                            new_pos.y = receivedY;
+
+                            // Is mine the reported position?
+                            /*
+                            if (receivedPlayer == player.playerNo) {
+                                System.out.println("I am at position (" + receivedX + "," + receivedY + ")");
+
+                                // TODO: may need extra locks here to prevent placing bombs if moving away from one
+                                if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y) {
+                                    player.samePlace = true;
+                                } else {
+                                    player.samePlace = false;
+                                }
+
+                                // I'm attempting to go somewhere but I can't... there's a wall.
+                                // blow it up!
+                                //
+                                if (player.samePlace) {
+                                    // Don't sit here... move
+                                    Random rand = new Random();
+                                    System.out.println(player.playerNo + ": Making a random move");
+                                    moveRequest(rand.nextInt(4));
+                                }
+
+                                player.prev_pos.x = new_pos.x;
+                                player.prev_pos.y = new_pos.y;
+
+                                // Is an enemy position what I've received?
+                            } else  */
+                            if(receivedTeam != player.team) {
+                                System.out.println(player.playerNo + ":  player's enemy " + receivedPlayer + "detected at position (" + receivedX + "," + receivedY + ")");
+
+                                if (BomberGame.players[receivedPlayer - 1].isDead()) {
+                                    System.out.println("Ignoring report for Dead: player " + receivedPlayer);
+                                    return;
+                                }
+
+                                Iterator<GridCoordinates> i = player.enemies.iterator();
+                                GridCoordinates current;
+                                boolean found = false;
+
+                                while (i.hasNext()) {
+                                    current = i.next();
+                                    if (current.id == receivedPlayer) {
+                                        current.x = receivedX;
+                                        current.y = receivedY;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    current = new GridCoordinates();
+                                    current.id = receivedPlayer;
+                                    current.x = receivedX;
+                                    current.y = receivedY;
+                                    player.enemies.add(current);
+                                }
+                            }
+                        } else if (args[0].equals("Dead")) {
+
+                            /* only care about enemies for now */
+                            if (receivedTeam != player.team) {
+                                GridCoordinates current;
+                                boolean found = false;
+
+                                for (int i = 0; i < player.enemies.size(); i++) {
+                                    current = player.enemies.get(i);
+                                    if (current.id == receivedPlayer) {
+                                        player.enemies.remove(i);
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    System.out.println("Dead enemy not in list!?!");
+                                }
+                            }
+                        }
+                    } catch (ReceiverBehaviour.TimedOut ex) {
+
+                    } catch (ReceiverBehaviour.NotYetReady ex) {
+
+                    } finally {
+                        myAgent.addBehaviour(proposeBehaviour);
+                    }
+                }
+
+            }
+
+        });
+
         this.addBehaviour(confirmBehavior);
-        this.addBehaviour(informBehavior);
         this.addBehaviour(new CyclicBehaviour(this) {
             public void action() {
                 ACLMessage msg = null;
@@ -129,10 +245,10 @@ public class BomberPlayerAgent extends Agent {
 
         });
 
+        this.addBehaviour(informBehavior);
         addBehaviour(new TickerBehaviour(this, 500) {
             public void onTick() {
                 // perform operation Y
-                GridCoordinates new_pos = new GridCoordinates();
                 GridCoordinates cur_pos = new GridCoordinates();
 
                 cur_pos.x = (player.x / 15);
@@ -162,129 +278,6 @@ public class BomberPlayerAgent extends Agent {
                     System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     String content = msg.getContent();
                     String args[] = content.split(":");
-
-                    if (args[0].equals("Player")) {
-                        int receivedPlayer = Integer.parseInt(args[1]);
-                        int receivedTeam = Integer.parseInt(args[2]);
-                        int receivedX = Integer.parseInt(args[3]);
-                        int receivedY = Integer.parseInt(args[4]);
-
-                        /* Is mine the reported position? */
-                        if (receivedPlayer == player.playerNo) {
-                            System.out.println("I am at position (" + receivedX + "," + receivedY + ")");
-                            new_pos.x = receivedX;
-                            new_pos.y = receivedY;
-
-                            /* TODO: may need extra locks here to prevent placing bombs if moving away from one */
-                            if (new_pos.x == player.prev_pos.x && new_pos.y == player.prev_pos.y) {
-                                player.samePlace = true;
-                            } else {
-                                player.samePlace = false;
-                            }
-
-                            /* I'm attempting to go somewhere but I can't... there's a wall.
-                             * blow it up!
-                             */
-                            if (player.samePlace) {
-                                /* Don't sit here... move */
-                                Random rand = new Random();
-                                System.out.println(player.playerNo + ": Making a random move");
-                                moveRequest(rand.nextInt(4));
-                            }
-
-                            player.prev_pos.x = new_pos.x;
-                            player.prev_pos.y = new_pos.y;
-                            /* Is an enemy position what I've received? */
-                        } else if (receivedTeam != player.team) {
-                            System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
-                            Iterator<GridCoordinates> i = player.enemies.iterator();
-                            GridCoordinates current;
-                            boolean found = false;
-
-                            while (i.hasNext()) {
-                                current = i.next();
-                                if (current.id == receivedPlayer) {
-                                    current.x = receivedX;
-                                    current.y = receivedY;
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            if (!found) {
-                                current = new GridCoordinates();
-                                current.id = receivedPlayer;
-                                current.x = receivedX;
-                                current.y = receivedY;
-                                player.enemies.add(current);
-                            }
-                            /* Is it an ally then? */
-                        } else {
-                            /* TODO: Do I care? Maybe, if we want to work in teams... but later */
-                        }
-
-                    } else if (args[0].equals("Dead")) {
-                        int receivedPlayer = Integer.parseInt(args[1]);
-                        int receivedTeam = Integer.parseInt(args[2]);
-
-                        /* only care about enemies for now */
-                        if (receivedTeam != player.team) {
-                            System.out.println(receivedPlayer + "dead enemy " + receivedPlayer + " detected");
-                            Iterator<GridCoordinates> i = player.enemies.iterator();
-                            GridCoordinates current;
-                            boolean found = false;
-
-                            while (i.hasNext()) {
-                                current = i.next();
-                                if (current.id == receivedPlayer) {
-                                    player.enemies.remove(i);
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            if (!found) {
-                                System.out.println("Dead enemy not in list!?!");
-                            }
-                            /* Is it an ally then? */
-                        }
-
-                    } else if (args[0].equals("Bomb")) {
-                        /*                        int receivedX = Integer.parseInt(args[1]);
-                         int receivedY = Integer.parseInt(args[2]);
-
-                         GridCoordinates current = new GridCoordinates();
-                         current.x = receivedX;
-                         current.y = receivedY;
-
-                         player.bombs.add(current);
-
-                         System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
-                         */
-                    } else if (args[0].equals("Explosion")) {
-                        /*
-                        int receivedX = Integer.parseInt(args[1]);
-                        int receivedY = Integer.parseInt(args[2]);
-
-                        System.out.println(player.playerNo + " player's detected an explosion at position (" + receivedX + "," + receivedY + ")");
-                        Iterator<GridCoordinates> i = player.bombs.iterator();
-                        GridCoordinates current;
-                        boolean found = false;
-
-                        while (i.hasNext()) {
-                            current = i.next();
-                            if (current.x == receivedX && current.y == receivedY) {
-                                player.bombs.remove(i);
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (!found) {
-                            System.out.println("Exploded bomb not found!?!");
-                        }
-                        */
-                    }
                 }
 
                 System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "

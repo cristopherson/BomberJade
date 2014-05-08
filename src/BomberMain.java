@@ -142,18 +142,18 @@ public class BomberMain extends Agent {
             }
         });
 
-        /*
-        addBehaviour(new TickerBehaviour(this, 5000) {
+        addBehaviour(new TickerBehaviour(this, 1000) {
             public void onTick() {
                 // perform operation Y
 
                 for (int i = 0; i < 4; i++) {
-                    BomberGame.players[i].sendPosition();
+                    if (!BomberGame.players[i].isDead()) {
+                        BomberGame.players[i].sendPosition();
+                    }
                 }
 
             }
         });
-        */
 
         mainFramework = new JFrame();
         /**
@@ -323,6 +323,10 @@ public class BomberMain extends Agent {
 
     public void sendCancelMessage(String message) {
         sendGeneralMessage(message, ACLMessage.CANCEL);
+    }
+
+    public void sendProposeMessage(String message) {
+        sendGeneralMessage(message, ACLMessage.PROPOSE);
     }
 
     public void sendGeneralMessage(String message, int type) {
