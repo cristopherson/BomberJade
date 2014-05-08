@@ -255,6 +255,8 @@ public class BomberPlayerAgent extends Agent {
             public void onTick() {
                 // perform operation Y
 
+                cur_pos.x = (player.x >> BomberMain.shiftCount);
+                cur_pos.y = (player.y >> BomberMain.shiftCount);
                 System.out.println(player.playerNo + ": currently at " + cur_pos.x + ":" + cur_pos.y);
 
                 /* get the first message on my message queue.
@@ -284,8 +286,10 @@ public class BomberPlayerAgent extends Agent {
                 /* I'm just going to leave this here */
                 if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)
                             && !player.bombSet) {
-                    moveRequest(BomberPlayer.BOMB);
-                    player.bombSet = true;
+                    if(MoveValidator.canSafeMoveCheckWarnings(player.map, cur_pos.x, cur_pos.y)) {
+                        moveRequest(BomberPlayer.BOMB);
+                        player.bombSet = true;
+                    }
                 }
 
                 /* Look for bombs */
@@ -296,8 +300,9 @@ public class BomberPlayerAgent extends Agent {
                      * may need to keep track of the actual fire power of each player.
                      */
                     for (int i = 0; i < player.bombs.size(); i++) {
+                        System.out.println("MoveValidator.isWarning(player.map, cur_pos.x, cur_pos.y) = " + MoveValidator.isWarning(player.map, cur_pos.x, cur_pos.y));
                         if (player.bombs.get(i).x == cur_pos.x &&
-                                Math.abs(player.bombs.get(i).y - cur_pos.y) < player.fireLength) {
+                                (Math.abs(player.bombs.get(i).y - cur_pos.y) < player.fireLength || MoveValidator.isWarning(player.map, cur_pos.x, cur_pos.y))) {
                             System.out.println(player.playerNo + ": in same column as bomb at " + player.bombs.get(i).x + ":" + player.bombs.get(i).y);
 
                             /*
@@ -352,7 +357,7 @@ public class BomberPlayerAgent extends Agent {
                          * may need to keep track of the actual fire power of each player.
                          */
                         if (player.bombs.get(i).y == cur_pos.y &&
-                                Math.abs(player.bombs.get(i).x - cur_pos.x) < player.fireLength) {
+                                (Math.abs(player.bombs.get(i).x - cur_pos.x) < player.fireLength)|| MoveValidator.isWarning(player.map, cur_pos.x, cur_pos.y)) {
                             System.out.println(player.playerNo + ": in same row as bomb at " + player.bombs.get(i).x + ":" + player.bombs.get(i).y);
 /*
                             nextMove = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
@@ -473,6 +478,10 @@ public class BomberPlayerAgent extends Agent {
         }
         );
     }
+    
+    private boolean shouldMove(int prevX, int prevY, int x, int y) {
+        return (!MoveValidator.isWarning(player.map, x, y) || MoveValidator.isWarning(player.map, prevX, prevY));
+    }
 
     /* is it possible or safe to move to a particular position? */
     private boolean canMove(int x, int y, boolean paranoid) {
@@ -520,7 +529,11 @@ public class BomberPlayerAgent extends Agent {
             System.out.println(player.playerNo + ": Rejected because FIRE_SOUTH");
             return false;
         }
+ 
+        if(player.map.grid[x][y] > BomberMap.NOTHING)
+            return false;
         System.out.println(player.playerNo + ": Safe to move to " + x + ":" + y);
+
         return true;
     }
 
@@ -532,7 +545,7 @@ public class BomberPlayerAgent extends Agent {
         int move = -1;
 
         move = MoveValidator.nextMove(cur_pos.x, cur_pos.y, x, y);
-        if (move != -1 && canMove(x, y, paranoid)) {
+        if (move != -1 && canMove(x, y, paranoid) &&shouldMove(cur_pos.x, cur_pos.y, x, y)) {
             moveRequest(move);
             return true;
         }
@@ -563,7 +576,7 @@ public class BomberPlayerAgent extends Agent {
                         /* 300 seems a pretty good approximation
                          * to moving exactly one square.
                          */
-                        Thread.sleep(300);
+                        Thread.sleep(350);
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);

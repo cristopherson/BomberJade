@@ -50,7 +50,7 @@ public class BomberMap extends JPanel {
     /**
      * warnings
      */
-    public boolean[][] warningGrid = null;
+    public volatile boolean[][] warningGrid = null;
     /**
      * /**
      * bombs
@@ -497,16 +497,22 @@ public class BomberMap extends JPanel {
         bombGrid[_x >> BomberMain.shiftCount][_y >> BomberMain.shiftCount] = new BomberBomb(this, _x, _y, owner);
         bombs.addElement(new Bomb(_x, _y));
 
-        int row = (_x >> BomberMain.shiftCount);
-        int col = (_y >> BomberMain.shiftCount);
-        int length = BomberGame.players[owner-1].fireLength;
-        int offset = (length / 2);
+        if (owner > 0) {
+            int row = (_x >> BomberMain.shiftCount);
+            int col = (_y >> BomberMain.shiftCount);
+            int length = BomberGame.players[owner - 1].fireLength;
+            int offset = length;
 
-        for (int i = 0; i < length; i++) {
-            for (int j = 0; j < length; j++) {
-                if (row > 0 && row < 16 && col > 0 && col < 16) {
-                    if (((row - offset) >= 0) && ((col - offset) >= 0)) {
-                        warningGrid[row - offset + i][col - offset + j] = true;
+            int i = row - length;
+            int maxI = (i + (2 * length) + 1);
+            for (; i < maxI; i++) {
+                int j = col - length;
+                int maxJ = (j + (2 * length) + 1);
+                for (; j < maxJ; j++) {
+                    if (row > 0 && row < 16 && col > 0 && col < 16) {
+                        if (((row - offset) >= 0) && ((col - offset) >= 0)) {
+                            warningGrid[row - offset + i][col - offset + j] = true;
+                        }
                     }
                 }
             }
@@ -812,16 +818,20 @@ public class BomberMap extends JPanel {
                 }
             }
 
-            int row = (_x >> BomberMain.shiftCount);
-            int col = (_y >> BomberMain.shiftCount);
-            int length = BomberGame.players[owner].fireLength;
-            int offset = (length / 2);
+            if (owner > 0) {
+                int row = (_x >> BomberMain.shiftCount);
+                int col = (_y >> BomberMain.shiftCount);
+                int length = BomberGame.players[owner - 1].fireLength;
+                int offset = length;
 
-            for (int i = 0; i < length; i++) {
-                for (int j = 0; j < length; j++) {
-                    if (row > 0 && row < 16 && col > 0 && col < 16) {
-                        if (((row - offset) >= 0) && ((col - offset) >= 0)) {
-                            warningGrid[row - offset + i][col - offset + j] = false;
+                int i = row - length;
+                for (; i < (i + (2 * length) + 1); i++) {
+                    int j = col - length;
+                    for (; j < (j + (2 * length) + 1); j++) {
+                        if (row > 0 && row < 16 && col > 0 && col < 16) {
+                            if (((row - offset) >= 0) && ((col - offset) >= 0)) {
+                                warningGrid[row - offset + i][col - offset + j] = false;
+                            }
                         }
                     }
                 }

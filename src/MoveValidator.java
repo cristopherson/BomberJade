@@ -61,7 +61,6 @@ public class MoveValidator {
         }
 
         if (type == BomberMap.WARNING) {
-            System.out.println("WArning");
             return map.warningGrid[x][y];
         }
 
@@ -72,9 +71,10 @@ public class MoveValidator {
     }
 
     public static boolean hasSafeMove(BomberMap map, int x, int y) {
+        
         if (x < 1 || x > 15 || y < 1 || y > 15) {
             return false;
-        }
+        }        
 
         if (canSafeMove(map, x + 1, y)) {
             return true;
@@ -83,11 +83,10 @@ public class MoveValidator {
         if (canSafeMove(map, x - 1, y)) {
             return true;
         }
-        if (canSafeMove(map, x, y + 1)) {
+        if (canSafeMove(map, x, y - 1)) {
             return true;
         }
-
-        if (canSafeMove(map, x, y - 1)) {
+        if (canSafeMove(map, x, y + 1)) {
             return true;
         }
         return false;
@@ -113,6 +112,14 @@ public class MoveValidator {
         return -1;
     }
 
+    public static boolean canSafeMoveCheckWarnings(BomberMap map, int x, int y) {
+        if (x < 1 || x > 15 || y < 1 || y > 15) {
+            return false;
+        }
+
+        return (map.grid[x][y] <= BomberMap.NOTHING && !MoveValidator.isWarning(map, x, y));
+    }
+    
     public static boolean canSafeMove(BomberMap map, int x, int y) {
         if (x < 1 || x > 15 || y < 1 || y > 15) {
             return false;
@@ -120,7 +127,7 @@ public class MoveValidator {
 
         return (map.grid[x][y] <= BomberMap.NOTHING);
     }
-
+    
     public static int nextMove(BomberMap map, int type, int x, int y) {
         if (x < 1 || x > 15 || y < 1 || y > 15) {
             return -1;
@@ -172,5 +179,27 @@ public class MoveValidator {
         }
 
         return BomberMap.WARNING;
+    }
+    
+    public static boolean hasSafeMoveInFuture(BomberMap map, int move, int x, int y) {
+        int new_x = x;
+        int new_y = y;
+
+        switch (move) {
+            case BomberPlayer.UP:
+                new_y -= 1;
+                break;
+            case BomberPlayer.DOWN:
+                new_y += 1;
+                break;
+            case BomberPlayer.LEFT:
+                new_x -= 1;
+                break;
+            case BomberPlayer.RIGHT:
+                new_x += 1;
+                break;
+        }
+        
+        return hasSafeMove(map, new_x, new_y);
     }
 }
