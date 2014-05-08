@@ -41,12 +41,8 @@ public class BomberPlayerAgent extends Agent {
         //playerId = Integer.parseInt(localName.replaceAll("Bomber", ""));
 
         // Printout a welcome message
-        System.out.println("Hello World. I’m a bomber agent!");
         System.out.println("My local-name is " + localName);
         System.out.println("I play for team " + player.team);
-
-        /*        System.out.println("My GUID is " + getAID().getName());
-         System.out.println("My addresses are:");*/
 
         /* this agent will execute this behaviour every 500 ms */
         addBehaviour(new OneShotBehaviour(this) {
@@ -134,11 +130,8 @@ public class BomberPlayerAgent extends Agent {
                 cur_pos.x = (player.x / 15);
                 cur_pos.y = (player.y / 15);
 
-                if (MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
-                    System.out.println("found breakable wall at " + cur_pos.x + ":" + cur_pos.y);
+                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
                     moveRequest(BomberPlayer.BOMB);
-                } else {
-                    System.out.println("Nothing to break at " + cur_pos.x + ":" + cur_pos.y);
                 }
 
                 /* get the first message on my message queue.
@@ -160,7 +153,6 @@ public class BomberPlayerAgent extends Agent {
                 if (msg != null) {
                     System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     String content = msg.getContent();
-                    //System.out.println("message is of performative " + performative);
                     String args[] = content.split(":");
 
                     if (args[0].equals("Player")) {
@@ -221,7 +213,6 @@ public class BomberPlayerAgent extends Agent {
                             /* Is it an ally then? */
                         } else {
                             /* TODO: Do I care? Maybe, if we want to work in teams... but later */
-                            System.out.println("Player " + receivedPlayer + " is on " + player.playerNo + "'s team");
                         }
 
                     } else if (args[0].equals("Dead")) {
@@ -413,9 +404,6 @@ public class BomberPlayerAgent extends Agent {
      * = 0 DOWN = 1 LEFT = 2 RIGHT = 3 BOMB = 4
      */
     private void moveRequest(int move) {
-        if (move == BomberPlayer.BOMB) {
-            System.out.println("GOT BOMB REQUEST");
-        }
         /* ensure only valid requests are sent */
         if (move >= BomberPlayer.UP && move <= BomberPlayer.BOMB) {
             KeyEvent event
