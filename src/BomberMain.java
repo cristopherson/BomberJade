@@ -133,7 +133,7 @@ public class BomberMain extends Agent {
                                                 System.currentTimeMillis(), 0, BomberKeyConfig.keys[index - 1][move],
                                                 KeyEvent.CHAR_UNDEFINED);
 
-                                System.out.println("Moving " + agent + " to " + move);
+                                //System.out.println("Moving " + agent + " to " + move);
 
                                 if (game != null) {
                                     game.keyPressed(event);
@@ -152,7 +152,7 @@ public class BomberMain extends Agent {
                 /* If there's no message, players may need to get each other's positions,
                  * so send them */
                 if (positionsSent == false) {
-                    System.out.println(" Player position needs to be sent.");
+                    //System.out.println(" Player position needs to be sent.");
                     for (int i = 0; i < 4; i++) {
                         BomberGame.players[i].sendPosition();
                     }

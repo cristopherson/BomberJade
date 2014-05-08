@@ -48,12 +48,16 @@ public class BomberPlayerAgent extends Agent {
                 /* get the first message on my message queue.
                  */
                 ACLMessage msg = receive();
-                int x = player.x >> BomberMain.shiftCount;
-                int y = player.y >> BomberMain.shiftCount;
+
+                /* whenever I can destroy something, do so */
+                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, player.prev_pos.x, player.prev_pos.y)) {
+                    moveRequest(BomberPlayer.BOMB);
+                }
+
 
                 /* message has been received */
                 if (msg != null) {
-                    System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
+                    //System.out.println(getAID().getLocalName() + " got message " + msg.getContent());
                     int performative = msg.getPerformative();
                     String content = msg.getContent();
                     //System.out.println("message is of performative " + performative);
@@ -72,7 +76,7 @@ public class BomberPlayerAgent extends Agent {
 
                                 /* Is mine the reported position? */
                                 if (receivedPlayer == player.playerNo) {
-                                    System.out.println("I am at position (" + receivedX + "," + receivedY + ")");
+                                    //System.out.println("I am at position (" + receivedX + "," + receivedY + ")");
                                     new_pos.x = receivedX;
                                     new_pos.y = receivedY;
 
@@ -86,16 +90,18 @@ public class BomberPlayerAgent extends Agent {
                                     /* I'm attempting to go somewhere but I can't... there's a wall.
                                      * blow it up!
                                      */
+                                    /*
                                     if (player.samePlace) {
                                         if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
                                               moveRequest(BomberPlayer.BOMB);
                                     }
+                                    */
 
                                     player.prev_pos.x = new_pos.x;
                                     player.prev_pos.y = new_pos.y;
                                 /* Is an enemy position what I've received? */
                                 } else if (receivedTeam != player.team) {
-                                        System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
+                                        //System.out.println(receivedPlayer + " player's enemy detected at position (" + receivedX + "," + receivedY + ")");
                                         Iterator<GridCoordinates> i = player.enemies.iterator();
                                         GridCoordinates current;
                                         boolean found = false;
@@ -120,7 +126,7 @@ public class BomberPlayerAgent extends Agent {
                                 /* Is it an ally then? */
                                 } else {
                                         /* TODO: Do I care? Maybe, if we want to work in teams... but later */
-                                        System.out.println("Player " + receivedPlayer + " is on " + player.playerNo + "'s team");
+                                        //System.out.println("Player " + receivedPlayer + " is on " + player.playerNo + "'s team");
                                 }
 
                             } else if (args[0].equals("Dead")) {
@@ -199,8 +205,8 @@ public class BomberPlayerAgent extends Agent {
                     send(msg);
                 }
 
-                System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
-                                        + player.enemies.size() + " enemies in sight");
+                //System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
+                                        //+ player.enemies.size() + " enemies in sight");
 
                 int move = -1;
 
@@ -259,7 +265,7 @@ public class BomberPlayerAgent extends Agent {
                     }
                     //moveRequest(move);
                 } else {
-                    System.out.println(player.playerNo + ": No bombs in range");
+                    //System.out.println(player.playerNo + ": No bombs in range");
                 }
 
                 /* Look for enemies */
@@ -283,13 +289,13 @@ public class BomberPlayerAgent extends Agent {
                         /* impossible scenario!! should I make a random move? */
                         /* between 0 and 3, no bombs! */
                         Random rand = new Random();
-                        System.out.println(player.playerNo + ": Making a random move");
+                        //System.out.println(player.playerNo + ": Making a random move");
                         moveRequest(rand.nextInt(4));
                         return;
                     }
 
-                    System.out.println(player.playerNo + ": closest player is at position "
-                                        + player.enemies.get(closer_index).x + ":" + player.enemies.get(closer_index).y);
+                    //System.out.println(player.playerNo + ": closest player is at position "
+                    //                    + player.enemies.get(closer_index).x + ":" + player.enemies.get(closer_index).y);
                     /* attempt to get near, choice of x or y could be randomized,
                      * for now first through x then through y */
                     do {
@@ -312,7 +318,7 @@ public class BomberPlayerAgent extends Agent {
                 }
                 /* nothing to act upon. Move randomly */
                 Random rand = new Random();
-                System.out.println(player.playerNo + ": Making a random move");
+                //System.out.println(player.playerNo + ": Making a random move");
                 moveRequest(rand.nextInt(4));
                 return;
             }
