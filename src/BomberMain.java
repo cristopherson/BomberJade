@@ -128,7 +128,7 @@ public class BomberMain extends Agent {
                 /* If there's no message, players may need to get each other's positions,
                  * so send them */
                 if (positionsSent == false) {
-                    //System.out.println(" Player position needs to be sent.");
+                    System.out.println(" Player position needs to be sent.");
                     for (int i = 0; i < 4; i++) {
                         BomberGame.players[i].sendPosition();
                     }
