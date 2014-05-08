@@ -1,7 +1,10 @@
 
+import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -40,8 +43,8 @@ public class BomberPlayerAgent extends Agent {
          System.out.println("My addresses are:");*/
 
         /* this agent will execute this behaviour every 500 ms */
-        addBehaviour(new CyclicBehaviour(this) {
-            public void action() {
+        addBehaviour(new TickerBehaviour(this, 500) {
+            public void onTick() {
                 // perform operation Y
                 GridCoordinates new_pos = new GridCoordinates();
 
@@ -337,12 +340,26 @@ public class BomberPlayerAgent extends Agent {
     private void moveRequest(int move) {
         /* ensure only valid requests are sent */
         if (move >= BomberPlayer.UP && move <= BomberPlayer.BOMB) {
-            ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-            msg.addReceiver(new AID("Cris", AID.ISLOCALNAME));
-            msg.setLanguage("English");
-            msg.setOntology("Weather-forecast-ontology");
-            msg.setContent("Move:" + move);
-            send(msg);
+            KeyEvent event
+            = new KeyEvent(player.game, BomberKeyConfig.keys[player.playerNo - 1][move],
+                    System.currentTimeMillis(), 0, BomberKeyConfig.keys[player.playerNo - 1][move],
+                    KeyEvent.CHAR_UNDEFINED);
+
+    //System.out.println("Moving " + agent + " to " + move);
+
+            if (player.game != null) {
+                player.game.keyPressed(event);
+                try {
+                    if (move == BomberPlayer.BOMB) {
+                        Thread.sleep(5);
+                    } else {
+                        Thread.sleep(150);
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                player.game.keyReleased(event);
+            }
         }
     }
 }

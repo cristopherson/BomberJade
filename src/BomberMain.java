@@ -77,8 +77,8 @@ public class BomberMain extends Agent {
         String localname = "Cris";
         AID id = new AID(localname, AID.ISLOCALNAME);
 
-        addBehaviour(new CyclicBehaviour(this) {
-            public void action() {
+        addBehaviour(new TickerBehaviour(this, 100) {
+            public void onTick() {
                 // perform operation Y
                 boolean positionsSent = false;
                 ACLMessage msg = receive();
@@ -122,34 +122,6 @@ public class BomberMain extends Agent {
 
                             game.players[index -1].sendPosition();
                             return;
-
-                        case ACLMessage.REQUEST:
-                            if (content.startsWith("Move:")) {
-                                String moveArray[] = content.split(":");
-                                int index = Integer.parseInt(agent.replaceAll("Bomber", ""));
-                                int move = Integer.parseInt(moveArray[1]);
-                                KeyEvent event
-                                        = new KeyEvent(game, BomberKeyConfig.keys[index - 1][move],
-                                                System.currentTimeMillis(), 0, BomberKeyConfig.keys[index - 1][move],
-                                                KeyEvent.CHAR_UNDEFINED);
-
-                                //System.out.println("Moving " + agent + " to " + move);
-
-                                if (game != null) {
-                                    game.keyPressed(event);
-                                    try {
-                                        if (move == BomberPlayer.BOMB) {
-                                            Thread.sleep(5);
-                                        } else {
-                                            Thread.sleep(150);
-                                        }
-                                    } catch (InterruptedException ex) {
-                                        Logger.getLogger(BomberMain.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                    game.keyReleased(event);
-                                }
-                            }
-                            break;
                     }
                 } /* else I did not receive any message... but I may want to act on my own */
 
