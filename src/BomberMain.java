@@ -110,7 +110,6 @@ public class BomberMain extends Agent {
                     String agent = msg.getSender().getLocalName();
 
                     System.out.println(getAID().getLocalName() + " got subscription request");
-                    System.out.println("SUBSCRIPTION: " + agent + " says " + content);
 
                     for (int i = 0; i < index; i++) {
                         if (subscribers[i].equals(agent)) {
@@ -122,7 +121,6 @@ public class BomberMain extends Agent {
                     if (index < subscribers.length) {
                         subscribers[index] = agent;
                         index++;
-                        System.out.println("Agent "+ agent + "subscribed");
                     }
                     /* send response message */
                     msg = new ACLMessage(ACLMessage.CONFIRM);

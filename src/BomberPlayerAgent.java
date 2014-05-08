@@ -392,7 +392,7 @@ public class BomberPlayerAgent extends Agent {
                         /* impossible scenario!! should I make a random move? */
                         /* between 0 and 3, no bombs! */
                         Random rand = new Random();
-                        System.out.println(player.playerNo + ": Making a random move");
+                        System.out.println(player.playerNo + ": Making an impossible move");
                         moveRequest(rand.nextInt(4));
                         return;
                     }
@@ -436,7 +436,6 @@ public class BomberPlayerAgent extends Agent {
         */
                     System.out.println(player.playerNo + ": Making a random move");
                     Random rand = new Random();
-                    System.out.println("KIDDO Bomber"+player.playerNo + ": Making a random move");
                     moveRequest(rand.nextInt(4));
                         return;
 
@@ -451,20 +450,36 @@ public class BomberPlayerAgent extends Agent {
 
         System.out.println(player.playerNo + ": Evaluate moving to " + x + ":" + y);
         if (MoveValidator.hasElement(player.map, BomberMap.BRICK, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because BRICK");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.WALL, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because WALL");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_BRICK, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_BRICK");
             return false;
+            /*
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_CENTER, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_CENTER");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_EAST, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_EAST");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_WEST, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_WEST");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_NORTH, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_NORTH");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_SOUTH, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_SOUTH");
+            return false;
+            */
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_HORIZONTAL, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_HORIZONTAL");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_VERTICAL, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_VERTICAL");
             return false;
         }
         System.out.println(player.playerNo + ": Safe to move to " + x + ":" + y);
