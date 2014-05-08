@@ -14,7 +14,6 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -32,6 +31,8 @@ public class BomberPlayerAgent extends Agent {
     private ReceiverBehaviour informBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.INFORM));
     private ReceiverBehaviour cancelBehavior = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.CANCEL));
     private ReceiverBehaviour proposeBehaviour = new ReceiverBehaviour(this, 400, MessageTemplate.MatchPerformative(ACLMessage.PROPOSE));
+
+    public GridCoordinates cur_pos = new GridCoordinates();
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -245,16 +246,8 @@ public class BomberPlayerAgent extends Agent {
         addBehaviour(new TickerBehaviour(this, 500) {
             public void onTick() {
                 // perform operation Y
-                GridCoordinates cur_pos = new GridCoordinates();
-
-                cur_pos.x = (player.x / 15);
-                cur_pos.y = (player.y / 15);
 
                 System.out.println(player.playerNo + ": currently at " + cur_pos.x + ":" + cur_pos.y);
-
-                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
-                    moveRequest(BomberPlayer.BOMB);
-                }
 
                 /* get the first message on my message queue.
                  */
@@ -280,6 +273,12 @@ public class BomberPlayerAgent extends Agent {
                 System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
                         + player.enemies.size() + " enemies in sight");
 
+
+                /* I'm just going to leave this here */
+                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
+                    moveRequest(BomberPlayer.BOMB);
+                }
+
                 int move = -1;
 
                 /* Look for bombs */
@@ -301,7 +300,7 @@ public class BomberPlayerAgent extends Agent {
                             /* attempt move to another row */
                             move = MoveValidator.nextMove(cur_pos.x, cur_pos.y,
                                     cur_pos.x + 1, cur_pos.y);
-                            if (move != -1) {
+                            if (move != -1 && MoveValidator.nextMove(player.map, BomberMap.BRICK, cur_pos.x +1 , cur_pos.y) >= 0) {
                                 System.out.println(player.playerNo + ": moving right on x axis towards (" + (cur_pos.x + 1) + "," + cur_pos.y +") = " + move);
                                 moveRequest(move);
                                 break;
@@ -475,8 +474,8 @@ public class BomberPlayerAgent extends Agent {
                     if (move == BomberPlayer.BOMB) {
                         Thread.sleep(50);
                     } else {
-                        /* pretty good approximation to moving
-                         * exactly one square.
+                        /* 300 seems a pretty good approximation
+                         * to moving exactly one square.
                          */
                         Thread.sleep(300);
                     }
@@ -485,6 +484,8 @@ public class BomberPlayerAgent extends Agent {
                 }
                 player.game.keyReleased(event);
             }
+            cur_pos.x = (player.x / 15);
+            cur_pos.y = (player.y / 15);
         }
     }
 }
