@@ -105,9 +105,17 @@ public class BomberPlayerAgent extends Agent {
                         current.x = receivedX;
                         current.y = receivedY;
 
-                        player.bombs.add(current);
+                        if (args[0].equals("Bomb")) {
+                            player.bombs.add(current);
+                        } else if (args[0].equals("Explosion")) {
+                            for (int i = 0; i < player.bombs.size(); i++) {
+                                if (player.bombs.get(i).x == current.x &&
+                                        player.bombs.get(i).y == current.y)
+                                    player.bombs.remove(i);
+                            }
+                        }
 
-                        System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
+                        System.out.println(player.playerNo + " player's detected a(n) " + args[0] + " at position (" + receivedX + "," + receivedY + ")");
                     } catch (ReceiverBehaviour.TimedOut ex) {
 
                     } catch (ReceiverBehaviour.NotYetReady ex) {
@@ -254,6 +262,7 @@ public class BomberPlayerAgent extends Agent {
                          System.out.println(player.playerNo + " player's detected a bomb at position (" + receivedX + "," + receivedY + ")");
                          */
                     } else if (args[0].equals("Explosion")) {
+                        /*
                         int receivedX = Integer.parseInt(args[1]);
                         int receivedY = Integer.parseInt(args[2]);
 
@@ -274,6 +283,7 @@ public class BomberPlayerAgent extends Agent {
                         if (!found) {
                             System.out.println("Exploded bomb not found!?!");
                         }
+                        */
                     }
                 }
 
