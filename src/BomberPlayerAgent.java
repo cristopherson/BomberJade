@@ -68,6 +68,7 @@ public class BomberPlayerAgent extends Agent {
                 if (confirmBehavior.done()) {
                     try {
                         msg = confirmBehavior.getMessage();
+                        confirmBehavior.reset();
                         myAgent.removeBehaviour(this);
                         System.out.println("Confirmation received");
                         logged = true;
@@ -109,6 +110,7 @@ public class BomberPlayerAgent extends Agent {
                 if (informBehavior.done()) {
                     try {
                         msg = informBehavior.getMessage();
+                        informBehavior.reset();
                     } catch (ReceiverBehaviour.TimedOut ex) {
                     } catch (ReceiverBehaviour.NotYetReady ex) {
                     } finally {

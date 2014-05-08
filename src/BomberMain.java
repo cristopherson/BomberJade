@@ -93,6 +93,7 @@ public class BomberMain extends Agent {
                 if (subscribeBehavior.done()) {
                     try {
                         msg = subscribeBehavior.getMessage();
+                        subscribeBehavior.reset();
                     } catch (ReceiverBehaviour.TimedOut ex) {
                     } catch (ReceiverBehaviour.NotYetReady ex) {
                     } finally {
@@ -317,6 +318,7 @@ public class BomberMain extends Agent {
         msg.setContent(message);
         /* Iterate over the list of subscribed agents */
         for (int i = 0; i < BomberMain.index; i++) {
+            System.out.println("KIDDO subscribers" + BomberMain.subscribers[i]);
             msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
         }
         send(msg);
