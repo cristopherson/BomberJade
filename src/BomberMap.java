@@ -499,7 +499,7 @@ public class BomberMap extends JPanel {
 
         int row = (_x >> BomberMain.shiftCount);
         int col = (_y >> BomberMain.shiftCount);
-        int length = BomberGame.players[owner].fireLength;
+        int length = BomberGame.players[owner-1].fireLength;
         int offset = (length / 2);
 
         for (int i = 0; i < length; i++) {

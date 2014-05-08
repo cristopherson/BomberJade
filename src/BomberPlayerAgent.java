@@ -449,6 +449,7 @@ public class BomberPlayerAgent extends Agent {
     /* is it possible or safe to move to a particular position? */
     private boolean canMove(int x, int y) {
 
+        System.out.println(player.playerNo + ": Evaluate moving to " + x + ":" + y);
         if (MoveValidator.hasElement(player.map, BomberMap.BRICK, x, y)) {
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.WALL, x, y)) {

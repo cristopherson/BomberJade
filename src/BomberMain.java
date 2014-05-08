@@ -113,7 +113,6 @@ public class BomberMain extends Agent {
                     System.out.println("SUBSCRIPTION: " + agent + " says " + content);
 
                     for (int i = 0; i < index; i++) {
-                        System.out.println("Evaluating" + subscribers[i] + " and " + agent);
                         if (subscribers[i].equals(agent)) {
                             System.out.println("ignoring duplicate subscription for agent " + agent);
                             return;
