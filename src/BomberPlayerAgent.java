@@ -47,12 +47,21 @@ public class BomberPlayerAgent extends Agent {
             public void onTick() {
                 // perform operation Y
                 GridCoordinates new_pos = new GridCoordinates();
+                GridCoordinates cur_pos = new GridCoordinates();
+
+                cur_pos.x = (player.x / 15);
+                cur_pos.y = (player.y / 15);
+
+                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
+                    System.out.println("found breakable wall at " + cur_pos.x + ":" + cur_pos.y);
+                    moveRequest(BomberPlayer.BOMB);
+                } else {
+                    System.out.println("Nothing to break at " + cur_pos.x + ":" + cur_pos.y);
+                }
 
                 /* get the first message on my message queue.
                  */
                 ACLMessage msg = receive();
-                int x = player.x >> BomberMain.shiftCount;
-                int y = player.y >> BomberMain.shiftCount;
 
                 /* message has been received */
                 if (msg != null) {
@@ -90,8 +99,10 @@ public class BomberPlayerAgent extends Agent {
                                      * blow it up!
                                      */
                                     if (player.samePlace) {
-                                        if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, new_pos.x, new_pos.y))
-                                              moveRequest(BomberPlayer.BOMB);
+                                        /* Don't sit here... move */
+                                        Random rand = new Random();
+                                        System.out.println(player.playerNo + ": Making a random move");
+                                        moveRequest(rand.nextInt(4));
                                     }
 
                                     player.prev_pos.x = new_pos.x;
@@ -200,6 +211,7 @@ public class BomberPlayerAgent extends Agent {
                     msg.setOntology("Weather-forecast-ontology");
                     msg.setContent("Hi All\nI am " + getAID().getLocalName());
                     send(msg);
+                    return;
                 }
 
                 System.out.println("Player " + player.playerNo + " has " + player.bombs.size() + " bombs and "
@@ -333,6 +345,8 @@ public class BomberPlayerAgent extends Agent {
      * BOMB  = 4
      */
     private void moveRequest(int move) {
+        if (move == BomberPlayer.BOMB)
+            System.out.println("GOT BOMB REQUEST");
         /* ensure only valid requests are sent */
         if (move >= BomberPlayer.UP && move <= BomberPlayer.BOMB) {
             KeyEvent event
@@ -346,7 +360,7 @@ public class BomberPlayerAgent extends Agent {
                 player.game.keyPressed(event);
                 try {
                     if (move == BomberPlayer.BOMB) {
-                        Thread.sleep(5);
+                        Thread.sleep(50);
                     } else {
                         Thread.sleep(150);
                     }
