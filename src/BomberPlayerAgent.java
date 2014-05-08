@@ -221,13 +221,19 @@ public class BomberPlayerAgent extends Agent {
                         current.x = receivedX;
                         current.y = receivedY;
 
+
                         if (args[0].equals("Bomb")) {
+                            int owner = Integer.parseInt(args[3]);
+                            current.id = owner;
                             player.bombs.add(current);
                         } else if (args[0].equals("Explosion")) {
                             for (int i = 0; i < player.bombs.size(); i++) {
                                 if (player.bombs.get(i).x == current.x &&
-                                        player.bombs.get(i).y == current.y)
+                                        player.bombs.get(i).y == current.y) {
+                                    if (player.bombs.get(i).id == player.playerNo)
+                                        player.bombSet = false;
                                     player.bombs.remove(i);
+                                }
                             }
                         }
 
@@ -276,8 +282,10 @@ public class BomberPlayerAgent extends Agent {
                         + player.enemies.size() + " enemies in sight");
 
                 /* I'm just going to leave this here */
-                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)) {
+                if(MoveValidator.hasElementAround(player.map, BomberMap.BRICK, cur_pos.x, cur_pos.y)
+                            && !player.bombSet) {
                     moveRequest(BomberPlayer.BOMB);
+                    player.bombSet = true;
                 }
 
                 /* Look for bombs */

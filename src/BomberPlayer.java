@@ -146,6 +146,11 @@ public class BomberPlayer extends Thread {
     /* TODO: these may work if static... */
     public volatile LinkedList<GridCoordinates> bombs = new LinkedList<GridCoordinates>();
     public volatile LinkedList<GridCoordinates> enemies = new LinkedList<GridCoordinates>();
+
+    /**
+     * keep track if a bomb of mine is active
+     */
+    public boolean bombSet = false;
     /**
      * byte enumerations
      */

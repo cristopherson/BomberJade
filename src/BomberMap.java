@@ -512,7 +512,7 @@ public class BomberMap extends JPanel {
             }
         }
 
-        String message = "Bomb:" + (_x >> BomberMain.shiftCount) + ":" + (_y >> BomberMain.shiftCount);
+        String message = "Bomb:" + (_x >> BomberMain.shiftCount) + ":" + (_y >> BomberMain.shiftCount) + ":" + owner;
         main.sendCancelMessage(message);
     }
 
