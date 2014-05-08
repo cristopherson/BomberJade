@@ -597,6 +597,10 @@ public class BomberPlayer extends Thread {
          * is player isn't dead or isn't dieing already
          */
         if (!isDead && !isExploding) {
+
+            String message = "Dead:" + this.playerNo + ":" + this.team;
+            mainAgent.sendMessage(message);
+
             /**
              * lower players left
              */
@@ -623,10 +627,10 @@ public class BomberPlayer extends Thread {
             keyPressed = false;
             BomberMain.sndEffectPlayer.playSound("Die");
 
-            String message = "Dead:" + this.playerNo + ":" + this.team;
-            sendMessage(message);
-
             try {
+                /* sleep a while to allow for the message to be sent,
+                 * then kill the agent
+                 */
                 System.out.println("Killing agent controller" + ac.getName());
                 ac.kill();
             } catch (StaleProxyException e) {
@@ -1346,6 +1350,7 @@ public class BomberPlayer extends Thread {
             }
             /* TODO: send player position notifications here */
             /* this is to convert x y to grid positions used for bombs */
+            /*
             new_x = (x / 15);
             new_y = (y / 15);
 
@@ -1357,7 +1362,7 @@ public class BomberPlayer extends Thread {
                         int playerId = Integer.parseInt(names[0].replaceAll("Bomber", ""));
 
                         String message = "Player:" + playerId + ":" + this.team + ":" + new_x + ":" + new_y;
-                        sendMessage(message);
+                        mainAgent.sendMessage(message);
                     }
                 } catch (StaleProxyException e) {
                     // TODO Auto-generated catch block
@@ -1369,24 +1374,9 @@ public class BomberPlayer extends Thread {
             } else {
                 notifyStaticPosition = true;
             }
+            */
 
         }
-    }
-
-    /**
-     * Send a notification message to agents
-     */
-    public void sendMessage(String message) {
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-        msg.setLanguage("English");
-        msg.setOntology("Weather-forecast-ontology");
-        msg.setContent(message);
-        /* Iterate over the list of subscribed agents */
-        for (int i = 0; i < BomberMain.index; i++) {
-            msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
-        }
-        mainAgent.send(msg);
-
     }
 
     public AgentController createBomberAgent(
@@ -1430,6 +1420,6 @@ public class BomberPlayer extends Thread {
 
     public void sendPosition() {
         String message = "Player:" + playerNo + ":" + teamAssigner + ":" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
-        sendMessage(message);
+        mainAgent.sendMessage(message);
     }
 }

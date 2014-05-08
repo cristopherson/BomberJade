@@ -480,22 +480,6 @@ public class BomberMap extends JPanel {
     }
 
     /**
-     * Send a notification message to agents
-     */
-
-    public void sendMessage(String message) {
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-        msg.setLanguage("English");
-        msg.setOntology("Weather-forecast-ontology");
-        msg.setContent(message);
-        /* Iterate over the list of subscribed agents */
-        for (int i = 0; i < BomberMain.subscribers.length; i++) {
-            msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
-        }
-        main.send(msg);
-
-    }
-    /**
      * Creates a bomb.
      *
      * @param x x-coordinate
@@ -509,7 +493,7 @@ public class BomberMap extends JPanel {
                 = new BomberBomb(this, _x, _y, owner);
         bombs.addElement(new Bomb(_x, _y));
         String message = "Bomb:" + (_x >> BomberMain.shiftCount) + ":" + (_y >> BomberMain.shiftCount);
-        sendMessage(message);
+        main.sendMessage(message);
     }
 
     /**
@@ -533,7 +517,7 @@ public class BomberMap extends JPanel {
             k = bombs.size();
         }
         String message = "Explosion:" + (x >> BomberMain.shiftCount) + ":" + (y >> BomberMain.shiftCount);
-        sendMessage(message);
+        main.sendMessage(message);
     }
 
     /**

@@ -70,6 +70,9 @@ public class BomberMain extends Agent {
         sndEffectPlayer = new BomberSndEffect();
     }
 
+    /* flag to send positions only once */
+
+    boolean positionsSent = false;
     /**
      * Constructs the main frame.
      */
@@ -80,7 +83,7 @@ public class BomberMain extends Agent {
         addBehaviour(new TickerBehaviour(this, 100) {
             public void onTick() {
                 // perform operation Y
-                boolean positionsSent = false;
+
                 ACLMessage msg = receive();
                 if (msg != null) {
                     // Process the message
@@ -294,5 +297,21 @@ public class BomberMain extends Agent {
         System.out.println("Host is " + getAID().getLocalName());
         System.out.println("Waiting for players...");
         game.createBomberPlayerAgents();
+    }
+
+    /**
+     * Send a notification message to agents
+     */
+    public void sendMessage(String message) {
+        System.out.println("Sending message" + message);
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        msg.setLanguage("English");
+        msg.setOntology("Weather-forecast-ontology");
+        msg.setContent(message);
+        /* Iterate over the list of subscribed agents */
+        for (int i = 0; i < BomberMain.index; i++) {
+            msg.addReceiver(new AID(BomberMain.subscribers[i], AID.ISLOCALNAME));
+        }
+        send(msg);
     }
 }
