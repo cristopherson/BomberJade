@@ -282,10 +282,10 @@ public class BomberPlayerAgent extends Agent {
                 /* Look for bombs */
                 if (player.bombs.size() > 0) {
                     System.out.println(player.playerNo + ": Bombs present");
-                    /* player in same row as bomb? */
+                    /* player in same column as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
                         if (player.bombs.get(i).x == cur_pos.x) {
-                            System.out.println(player.playerNo + ": in same row as bomb at " + cur_pos.x + ":" + cur_pos.y);
+                            System.out.println(player.playerNo + ": in same column as bomb at " + player.bombs.get(i).x + ":" + player.bombs.get(i).y);
 
 /*
                             int nextMove = -1;
@@ -297,25 +297,25 @@ public class BomberPlayerAgent extends Agent {
                                 break;
                             }
 */
-                            /* attempt move to another row */
+                            /* attempt move to another column */
                             if (move(cur_pos.x + 1, cur_pos.y)) {
-                                System.out.println(player.playerNo + ": moving right on x axis towards (" + (cur_pos.x + 1) + "," + cur_pos.y +")");
+                                System.out.println(player.playerNo + ": moved right");
                                 break;
                             }
 
                             if (move(cur_pos.x - 1, cur_pos.y)) {
-                                System.out.println(player.playerNo + ": moving left on x axis towards (" + (cur_pos.x - 1) + "," + cur_pos.y +")");
+                                System.out.println(player.playerNo + ": moved left");
                                 break;
                             }
 
-                            /* move inside danger row, hoping to find an exit */
+                            /* move inside danger column, hoping to find an exit */
                             if (move(cur_pos.x, cur_pos.y + 1)) {
-                                System.out.println(player.playerNo + ": moving up on y axis towards (" + cur_pos.x + "," + (cur_pos.y + 1) +")");
+                                System.out.println(player.playerNo + ": moved down");
                                 break;
                             }
 
                             if (move(cur_pos.x, cur_pos.y - 1)) {
-                                System.out.println(player.playerNo + ": moving down on y axis towards (" + cur_pos.x + "," + (cur_pos.y - 1) +")");
+                                System.out.println(player.playerNo + ": moved up");
                                 break;
                             }
 
@@ -330,10 +330,10 @@ public class BomberPlayerAgent extends Agent {
                      * Because of this, I am adding returns after row and column checks... but
                      * I believe that could be optimized.
                      */
-                    /* player in same column as bomb? */
+                    /* player in same row as bomb? */
                     for (int i = 0; i < player.bombs.size(); i++) {
                         if (player.bombs.get(i).y == cur_pos.y) {
-                            System.out.println(player.playerNo + ": in same column as bomb at " + cur_pos.x + ":" + cur_pos.y);
+                            System.out.println(player.playerNo + ": in same row as bomb at " + player.bombs.get(i).x + ":" + player.bombs.get(i).y);
 /*
                             nextMove = MoveValidator.nextMove(player.map, BomberMap.NOTHING, cur_pos.x, cur_pos.y);
                             System.out.println(player.playerNo + ": must move away from (" + cur_pos.x + "," + cur_pos.y +") = " + nextMove);
@@ -344,23 +344,23 @@ public class BomberPlayerAgent extends Agent {
 */
                             /* attempt move to another column */
                             if (move(cur_pos.x, cur_pos.y + 1)) {
-                                System.out.println(player.playerNo + ": moving up on y axis towards (" + cur_pos.x + "," + (cur_pos.y + 1) +")");
+                                System.out.println(player.playerNo + ": moved down");
                                 break;
                             }
 
                             if (move(cur_pos.x, cur_pos.y - 1)) {
-                                System.out.println(player.playerNo + ": moving down on y axis towards (" + cur_pos.x + "," + (cur_pos.y - 1) +")");
+                                System.out.println(player.playerNo + ": moved up");
                                 break;
                             }
                             /* TODO: will need to protect myself from going back to danger */
                             /* move into danger column, hoping to find an exit */
                             if (move(cur_pos.x + 1, cur_pos.y)) {
-                                System.out.println(player.playerNo + ": moving right on x axis towards (" + (cur_pos.x + 1) + "," + cur_pos.y +")");
+                                System.out.println(player.playerNo + ": moved right");
                                 break;
                             }
 
                             if (move(cur_pos.x - 1, cur_pos.y)) {
-                                System.out.println(player.playerNo + ": moving left on x axis towards (" + (cur_pos.x - 1) + "," + cur_pos.y +")");
+                                System.out.println(player.playerNo + ": moved left");
                                 break;
                             }
                         }
@@ -392,7 +392,7 @@ public class BomberPlayerAgent extends Agent {
                         /* impossible scenario!! should I make a random move? */
                         /* between 0 and 3, no bombs! */
                         Random rand = new Random();
-                        System.out.println(player.playerNo + ": Making a random move");
+                        System.out.println(player.playerNo + ": Making an impossible move");
                         moveRequest(rand.nextInt(4));
                         return;
                     }
@@ -436,7 +436,6 @@ public class BomberPlayerAgent extends Agent {
         */
                     System.out.println(player.playerNo + ": Making a random move");
                     Random rand = new Random();
-                    System.out.println("KIDDO Bomber"+player.playerNo + ": Making a random move");
                     moveRequest(rand.nextInt(4));
                         return;
 
@@ -451,20 +450,36 @@ public class BomberPlayerAgent extends Agent {
 
         System.out.println(player.playerNo + ": Evaluate moving to " + x + ":" + y);
         if (MoveValidator.hasElement(player.map, BomberMap.BRICK, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because BRICK");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.WALL, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because WALL");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_BRICK, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_BRICK");
             return false;
+            /*
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_CENTER, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_CENTER");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_EAST, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_EAST");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_WEST, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_WEST");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_NORTH, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_NORTH");
             return false;
         } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_SOUTH, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_SOUTH");
+            return false;
+            */
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_HORIZONTAL, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_HORIZONTAL");
+            return false;
+        } else if (MoveValidator.hasElement(player.map, BomberMap.FIRE_VERTICAL, x, y)) {
+            System.out.println(player.playerNo + ": Rejected because FIRE_VERTICAL");
             return false;
         }
         System.out.println(player.playerNo + ": Safe to move to " + x + ":" + y);
@@ -516,6 +531,7 @@ public class BomberPlayerAgent extends Agent {
             }
             cur_pos.x = (player.x / 15);
             cur_pos.y = (player.y / 15);
+            System.out.println(player.playerNo + ": now at " + cur_pos.x + ":" + cur_pos.y);
         }
     }
 }
